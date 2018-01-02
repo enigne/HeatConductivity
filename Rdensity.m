@@ -1,14 +1,14 @@
 function [R] = Rdensity(NRA)
-homedir = 'C:\FILES\_PHD\Data\LF\Cores\';
+homedir = '';
 % homedir = 'C:\DATA\Cores\';
 % NRA = 100;
 R.z = [ 0:0.1:25 ]';    % define the vertical model domain
 R.NRA = NRA;
 % load density data
-load([homedir '2012\LF12.mat'], 'rho_rs_fill'); r{1} = rho_rs_fill;
-load([homedir '2013\LF13.mat'], 'rho'        ); r{2} = rho;
-load([homedir '2014\LF14.mat'], 'rho'        ); r{3} = rho;
-load([homedir '2015\LF15.mat'], 'rho'        ); r{4} = rho;
+load([homedir 'LF12.mat'], 'rho_rs_fill'); r{1} = rho_rs_fill;
+load([homedir 'LF13.mat'], 'rho'        ); r{2} = rho;
+load([homedir 'LF14.mat'], 'rho'        ); r{3} = rho;
+load([homedir 'LF15.mat'], 'rho'        ); r{4} = rho;
 clear rho_rs_fill rho homedir
 
 for y = 1:4

@@ -20,7 +20,7 @@ NRA  = param{par}(unv)*double(par==4);
 NRAS = param{par}(unv)*double(par==5);
 
 %% load subsurface temperature data
-load('C:\FILES\_PHD\Data\LF\temperature\LF_4_aver.mat');
+load('LF_4_aver.mat');
 % load('C:\DATA\temperature\LF_4_aver.mat');
 for y = 1:4
     if   y == 1; Y = y  ;
