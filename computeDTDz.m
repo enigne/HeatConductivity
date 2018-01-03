@@ -1,15 +1,16 @@
 clear
 close all;
-%%
-
-load('invK.mat');
-K0 = K_opt_ave(:,end);
-
 
 %% Initialize
-
 % Settings
 interpOption = 'linear';
+
+% Load optimal K
+load('invK.mat');
+K0 = K_opt_ave(:,end);
+% Initial Heat conductivity
+Nk = length(K0);
+zK = linspace(0, 12, Nk)';
 
 % Load the data set
 load('LF_4_aver.mat');
@@ -33,17 +34,13 @@ Nfine = 200;
 Nx = Nfine * (length(z_data)-1) + 1;
 z = linspace(min(z_data), max(z_data),Nx)';
 
+% Interpolate initial condition
+T0 = interp1(z_data, T_data(:,1), z, interpOption);
+
 % Time discretization same size as measurment
 Nt = length(t_data);
 t = linspace(min(t_data), max(t_data),Nt);
 dt = abs(t(2) - t(1));
-
-% Initial Heat conductivity
-Nk = 5;
-zK = linspace(0, 12, Nk)';
-
-% Interpolate initial condition
-T0 = interp1(z_data, T_data(:,1), z, interpOption);
 
 % Interpolate Boundary conditions
 TbcUp = interp1(t_data, T_data(1,:), t, interpOption);
@@ -51,10 +48,7 @@ TbcDown = interp1(t_data, T_data(end,:), t, interpOption);
 
 heatParam = setHeatParam(dt, rho, C, T0, TbcUp, TbcDown, zK);
 
-% Project data to the computational domain
-f_data = projectY2D(T_data, t_data, z_data, t, z);
-
-%% Plot optimal solution
+%% Solve heat equation on a finear mesh
 T0_sol = solveHeat(t, z, K0, heatParam);
 
 %% Compute dT/dz
