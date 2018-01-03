@@ -1,3 +1,23 @@
+% Solve 1D Heat equation with variable coefficient K
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   't'             - grid point of the time discretization;       
+%   'z'             - grid point of the spatial discretization;
+%   'K'             - variable coefficient K(z);
+%   'heatParam'     - other coefficients: 
+%                       'dt'        - time step;
+%                       'rho'       - density of the snow;
+%                       'C'         - heat capacity;
+%                       'TbcUp'     - Dirichlet boundary condition at z=0
+%                       'TbcDown'   - Dirichlet boundary condition at z=12
+%                       'T0'        - intial condition         
+% The return values:
+%   'T'             - the solution in time*space;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-01-03
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [T]=solveHeat(t, z, K, heatParam)
     %% 
     dt = heatParam.dt;
