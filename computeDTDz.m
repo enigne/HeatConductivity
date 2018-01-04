@@ -1,93 +1,47 @@
-clear
-close all;
+% To compute dT/dz
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   'z_data'        - the z-coordinates of the measured data;
+%   't_data'        - the time of the data;
+%   'T_data'        - measured data(temperature);
+%   'dZfine'        - refinement factor for the computational nodes;
+%   'zK'            - the z-coordinates of K;
+%   'K0'            - the deepth dependent heat conductivity;
+%   'rho'           - density;
+%   'C'             - heat capacity;
+%   'interpOption'  - intepolation method (linear by default).
+% The return values:
+%   'dTdz'          - The derivatives of T with respect to z at t-z plan.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-01-03
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Initialize
-% Settings
-interpOption = 'linear';
+function dTdz = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, interpOption)
+    % Number of spatial discretization
+    Nz = dZfine * (length(z_data)-1) + 1;
 
-% Load optimal K
-load('invK.mat');
-K0 = K_opt_ave(:,end);
-% Initial Heat conductivity
-Nk = length(K0);
-zK = linspace(0, 12, Nk)';
+    % Time discretization same size as measurment
+    Nt = length(t_data);
 
-% Load the data set
-load('LF_4_aver.mat');
-data = LF{1,1}.T;
+    % Set initial and boundary conditions
+    [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption);
 
-% Measurements
-% Time vector (row)
-t_data = data.t';
-% Position vector (column)
-z_data = data.z_a;
-% Temperature
-T_data = data.T_a;
-    
-% Physical parameters
-rho = 900;
-C = 152.5 + 7.122 * (273.15 - 10);
+    % Set Parameters for solving
+    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
 
-%% Solve Heat equation
-% Spatial Discretization
-Nfine = 200;
-Nx = Nfine * (length(z_data)-1) + 1;
-z = linspace(min(z_data), max(z_data),Nx)';
+    %% Compute dT/dz
+    % Solve heat equation on a finear mesh
+    T0_sol = solveHeat(t, z, K0, heatParam);
 
-% Interpolate initial condition
-T0 = interp1(z_data, T_data(:,1), z, interpOption);
+    % Shift the indices for finite differences
+    xInd = 1:dZfine:Nz;
+    xIndP1 = xInd + 1;
+    xIndP1(end) = Nz;
 
-% Time discretization same size as measurment
-Nt = length(t_data);
-t = linspace(min(t_data), max(t_data),Nt);
-dt = abs(t(2) - t(1));
+    Tcenter = T0_sol(xInd, :);
+    Tup = T0_sol(xIndP1, :);
 
-% Interpolate Boundary conditions
-TbcUp = interp1(t_data, T_data(1,:), t, interpOption);
-TbcDown = interp1(t_data, T_data(end,:), t, interpOption);
-
-heatParam = setHeatParam(dt, rho, C, T0, TbcUp, TbcDown, zK);
-
-%% Solve heat equation on a finear mesh
-T0_sol = solveHeat(t, z, K0, heatParam);
-
-%% Compute dT/dz
-xInd = [1:Nfine:Nx];
-xIndP1 = xInd + 1;
-xIndP1(end) = Nx;
-xIndM1 = xInd - 1;
-xIndM1(1) = 1;
-
-dz = abs(z(2)-z(1));
-Tcenter = T0_sol(xInd, :);
-Tup = T0_sol(xIndP1, :);
-Tdown = T0_sol(xIndM1, :);
-
-% one-side finite differences
-dTdz = (Tup - Tcenter) ./ dz;
-
-% %% Visualize measurement
-% % mesh for measurment
-% [X_data, Y_data] = meshgrid(t_data, z_data);
-% 
-% figure
-% subplot(2, 1, 1)
-% surf(X_data, Y_data, Tcenter)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
-% caxis([-20, -2]);
-% grid off
-% 
-% 
-% subplot(2, 1, 2)
-% surf(X_data, Y_data, dTdz)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
-% caxis([-10, 10]);
-% grid off
+    % one-side finite differences
+    dTdz = 1.0 / dz .* (Tup - Tcenter);
+end

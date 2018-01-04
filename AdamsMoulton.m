@@ -1,11 +1,16 @@
 % Adams-Moulton second order implicit time stepping
-% ================ Variables ==================
-% y_old -- solution at t^n
-% dt -- time step 
-% D -- space discretization
-% ============== Return Values ================
-% y_new -- new solution of at t^{n+1}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   'y_old'         - solution at t^n;       
+%   'dt'            - time step;       
+%   'D'             - spatial discretization operator;
+%   'BC'            - boundary conditions.
+% The return values:
+%   'y_new'         - new solution of at t^{n+1}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-01-03
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function y_new = AdamsMoulton(y_old, dt, D, BC)
     n = size(D, 1);
