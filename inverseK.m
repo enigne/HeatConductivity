@@ -1,90 +1,77 @@
-function [K_opt] = inverseK(data, dataIndex, zK)
-%% Initialize
+% Solve the least-square problem to optimize K for the Heat equation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   'data'      - the whole data set as a structure, with:
+%               	'data.t'        - the time vector of the measurements;
+%                   'data.z'        - the depth of the measurements;
+%                   'data.T'        - the temperature measurements;
+%                   'data.T_corr'   - the temperature after correction;
+%                   'data.z_corr'   - the depth after correction;
+%                   'data.T_i'      - the interpolated temperature;
+%                   'data.z_i'      - the depth for the interpolation;
+%                   'data.z_a'      - the averaged depth;
+%                   'data.T_a'      - the averaged interpolated temperature;
+%                   'data.T_sd'     - the standard deviation of the
+%                                     temperature over the 9 holes
+%   'dataIndex'	- index of the holes to be used, 0 means to use the average
+%                 date
+%   'zK'    	- z-coordinate of the K parameter
+%   'K0'     	- the initial guess of K;
+%   'Nz'        - number of grid for the computation;
+% The return values:
+%   'K_opt'     - the optimal solution
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-01-05
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Settings
-interpOption = 'linear';
+function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz)
+    %% Initialize
 
-%
-% % Load the data set
-% load('LF_4_aver.mat');
-% data = LF{1,1}.T;
-% dataIndex = 4;
+    % Settings
+    interpOption = 'linear';
+    
+    % Measurements
+    if (dataIndex > 0) && (dataIndex < length(data.T))
+        % Time vector (row)
+        t_data = data.t';
+        % Position vector (column)
+        z_data = data.z_corr{dataIndex};
+        % Temperature
+        T_data = data.T_corr{dataIndex};
+    else
+        % Take the average value
+        % Time vector (row)
+        t_data = data.t';
+        % Position vector (column)
+        z_data = data.z_a;
+        % Temperature
+        T_data = data.T_a;        
+    end
+    
+    % Physical parameters
+    rho = 900;
+    C = 152.5 + 7.122 * (273.15 - 10);
 
-% Measurements
-% Time vector (row)
-t_data = data.t';
-% Position vector (column)
-z_data = data.z_corr{dataIndex};
-% Temperature
-T_data = data.T_corr{dataIndex};
+    %% Solve Heat equation
 
-% Physical parameters
-rho = 900;
-C = 152.5 + 7.122 * (273.15 - 10);
+    % Time discretization same size as measurment
+    Nt = length(t_data);
 
-% mesh for measurment
-% [X_data, Y_data] = meshgrid(t_data, z_data);
+    % Set initial and boundary conditions
+    [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption);
 
-%% Visualize measurement
-% figure
-% subplot(2, 1, 1)
-% surf(X_data, Y_data, T_data)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
-% caxis([-20, -2]);
-% grid off
+    % Set Parameters for solving
+    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
 
-%% Solve Heat equation
-% Spactial Discretization
-Nx = 201;
-z = linspace(min(z_data), max(z_data),Nx)';
+    % Project data to the computational domain
+    f_data = projectY2D(T_data, t_data, z_data, t, z);
 
-% Time discretization same size as measurment
-Nt = length(t_data);
-t = linspace(min(t_data), max(t_data),Nt);
-dt = abs(t(2) - t(1));
-
-% Mesh for solving PDE
-% [X, Y] = meshgrid(t, z);
-
-% Initial Heat conductivity
-Nk = length(zK);
-% zK = linspace(0, 12, Nk)';
-Kp = 0.4e6*ones(Nk, 1);
-
-% Interpolate initial condition
-T0 = interp1(z_data, T_data(:,1), z, interpOption);
-
-% Interpolate Boundary conditions
-TbcUp = interp1(t_data, T_data(1,:), t, interpOption);
-TbcDown = interp1(t_data, T_data(end,:), t, interpOption);
-
-heatParam = setHeatParam(dt, rho, C, T0, TbcUp, TbcDown, zK);
-
-% Project data to the computational domain
-f_data = projectY2D(T_data, t_data, z_data, t, z);
-
-%% Optimisation
-
-f = @(K) objF(K, @solveHeat, heatParam, z, t, f_data);
-
-% options = optimoptions('lsqnonlin','Display','iter','typicalX', Kp,'TolFun',1e-10,'TolX',1e-10);
-options = optimoptions('lsqnonlin','Display','iter','typicalX', Kp);
-[K_opt,resnorm,residual,exitflag,output] = lsqnonlin(f, Kp, [], [],options);
-
-%% Plot optimal solution
-% [T_sol] = solveHeat(t, z, K_opt, heatParam);
-%
-% subplot(2,1,2)
-% surf(X,Y,T_sol)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
-% caxis([-20,-2]);
-% grid off
+    %% Optimisation
+    % Create the objective function
+    objF = @(K) tempResidual(K, @solveHeat, z, t, f_data, heatParam);
+    % Set options
+    options = optimoptions('lsqnonlin','Display','iter','typicalX', K0);
+    % Solve
+    [K_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, K0, [], [],options);
 end
