@@ -10,7 +10,6 @@ nInd = length(dataIndex);
 %% Initialize
 Nk = 5;
 zK = linspace(0, 12, Nk)';
-Nz = 241;
 K0 = 0.4e6*ones(Nk, 1);
 
 %% Optimize for the averaged value with different resolution
@@ -23,6 +22,7 @@ for i = 1 : length(N_opt_ave)
 end
 
 %% Optimize for each hole
+Nz = 241;
 K_opt_ind = zeros(Nk, nInd);
 for i = 1:nInd
     K0 = inverseK(data, dataIndex(i), zK, K0, Nz);
