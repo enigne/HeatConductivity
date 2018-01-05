@@ -25,7 +25,14 @@
 % Date: 2018-01-05
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz)
+function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz, noise)
+    % Check the input variables
+    if nargin >5 
+        flagNoise = 1;
+    else
+        flagNoise = 0;
+        noise = 0;
+    end
     %% Initialize
 
     % Settings
@@ -47,6 +54,12 @@ function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz)
         z_data = data.z_a;
         % Temperature
         T_data = data.T_a;        
+    end
+    
+    % Add noise 
+    if flagNoise 
+        noiseT = noise*(1 - 2*rand(size(T_data)));
+        T_data = T_data + noiseT;
     end
     
     % Physical parameters
@@ -71,7 +84,7 @@ function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz)
     % Create the objective function
     objF = @(K) tempResidual(K, @solveHeat, z, t, f_data, heatParam);
     % Set options
-    options = optimoptions('lsqnonlin','Display','iter','typicalX', K0);
+    options = optimoptions('lsqnonlin','Display','iter','typicalX', K0,'TolFun', 1e-8, 'TolX', 1e-8);
     % Solve
     [K_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, K0, [], [],options);
 end
