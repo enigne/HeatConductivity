@@ -6,7 +6,6 @@ close all
 % Settings
 interpOption = 'linear';
 
-
 % Load the data set
 load('LF_4_aver.mat');
 data = LF{1,1}.T;
@@ -47,8 +46,9 @@ grid off
 
 %% Solve Heat equation
 % Spactial Discretization
-Nx = 121;
-z = linspace(min(z_data), max(z_data),Nx)';
+Nz = 121;
+z = linspace(min(z_data), max(z_data),Nz)';
+dz = abs(z(2) - z(1));
 
 % Time discretization same size as measurment
 Nt = length(t_data);
@@ -71,7 +71,7 @@ T0 = interp1(z_data, T_data(:,1), z, interpOption);
 TbcUp = interp1(t_data, T_data(1,:), t, interpOption);
 TbcDown = interp1(t_data, T_data(end,:), t, interpOption);
 
-heatParam = setHeatParam(dt, rho, C, T0, TbcUp, TbcDown, zK);
+heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, TbcUp, TbcDown, zK);
 
 % Project data to the computational domain
 f_data = projectY2D(T_data, t_data, z_data, t, z);
