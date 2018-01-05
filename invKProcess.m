@@ -1,7 +1,7 @@
 clear 
 close all
 %%
-load('invK.mat');
+load('invK_1e8_Nz241.mat');
 
 [Nz, Nk] = size(K_opt_ind);
 z = linspace(0,12,Nz);
