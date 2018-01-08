@@ -1,4 +1,4 @@
-% To compute A matrix for k
+% To compute the sensitivity matrix for rho
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The input variables:
 %   'z_data'        - the z-coordinates of the measured data;
@@ -6,19 +6,20 @@
 %   'T_data'        - measured data(temperature);
 %   'dZfine'        - refinement factor for the computational nodes;
 %   'zK'            - the z-coordinates of K;
-%   'K0'            - the deepth dependent heat conductivity;
-%   'dK'            - delta k for the numerical solution of the gradient;
+%   'K0'            - the depth dependent heat conductivity;
+%   'dRho'          - delta rho for the numerical solution of the gradient;
 %   'rho'           - density;
+%   'zRho'          - the depth of rho;
 %   'C'             - heat capacity;
 %   'interpOption'  - intepolation method (linear by default).
 % The return values:
 %   'dTdz'          - The derivatives of T with respect to z at t-z plan.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-03
+% Date: 2018-01-08
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [A] = computeA(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, interpOption)
+function [A] = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, zRho, C, interpOption)
     Nz = length(z_data);
     Nzfine = dZfine * (Nz - 1) + 1;
     xInd = [1:dZfine:Nzfine]';
@@ -30,20 +31,23 @@ function [A] = computeA(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, inte
     [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nzfine, Nt, T_data, interpOption);
     
     % Set Parameters for solving
-    heatParam = setHeatParam(dt, Nt, dz, Nzfine, rho, C, T0, Tbc.Up, Tbc.Down, zK);
+    heatParam = setHeatParam(dt, Nt, dz, Nzfine, rho, C, T0, Tbc.Up, Tbc.Down, zK, zRho);
     
     %% Solve for the optimal solution
     T0_sol = solveHeat(t, z, K0, heatParam);
     
     %%
-    Nk = length(K0);
+    NRho = length(rho);
     
-    dKvec = dK * speye(Nk);
-    A = zeros(Nz * Nt, Nk);
+    dRhovec = dRho * speye(NRho);
+    A = zeros(Nz * Nt, NRho);
     
-    for i = 1 : Nk
-        T_sol_temp = solveHeat(t, z, K0+dKvec(:,i), heatParam);
-        dT_temp = (T0_sol - T_sol_temp) /dK;
+    heatParam_temp = heatParam;
+    
+    for i = 1 : NRho
+        heatParam_temp.rho = heatParam.rho + dRhovec(:, i);
+        T_sol_temp = solveHeat(t, z, K0, heatParam_temp);
+        dT_temp = (T0_sol - T_sol_temp) / dRho;
         dT_temp = dT_temp(xInd, :);
         A(:, i) = dT_temp(:);
     end
