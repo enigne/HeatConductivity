@@ -12,12 +12,13 @@
 %   'interpOption'  - intepolation method (linear by default).
 % The return values:
 %   'dTdz'          - The derivatives of T with respect to z at t-z plan.
+%   'matDTDz'       - The derivatives in the matrix form: dT=matDTdz*dz.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-03
+% Date: 2018-01-08
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function dTdz = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, interpOption)
+function [dTdz, matDTDz] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, interpOption)
     % Number of spatial discretization
     Nz = dZfine * (length(z_data)-1) + 1;
 
@@ -44,4 +45,9 @@ function dTdz = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, inte
 
     % one-side finite differences
     dTdz = 1.0 / dz .* (Tup - Tcenter);
+    
+    % convert to matrix-vecotr multiplication form
+    nDz = length(z_data);
+    eyeDz = speye(nDz);
+    matDTDz = sparse(repmat(eyeDz, Nt, 1)) .* dTdz(:);
 end
