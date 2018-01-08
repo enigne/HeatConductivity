@@ -6,7 +6,8 @@
 %   'K'             - variable coefficient K(z);
 %   'heatParam'     - other coefficients: 
 %                       'dt'        - time step;
-%                       'rho'       - density of the snow;
+%                       'rho'       - density of the snow in vector form;
+%                       'zRho'      - depth of the density;
 %                       'C'         - heat capacity;
 %                       'TbcUp'     - Dirichlet boundary condition at z=0
 %                       'TbcDown'   - Dirichlet boundary condition at z=12
@@ -15,7 +16,7 @@
 %   'T'             - the solution in time*space;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-03
+% Date: 2018-01-08
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [T]=solveHeat(t, z, K, heatParam)
