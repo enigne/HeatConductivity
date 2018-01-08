@@ -35,8 +35,32 @@ dZfine = 2;
 %% Compute A  
 dZfine = 5;
 dK = 0.001;
-AK = computeA(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, interpOption);
+AK = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, interpOption);
 B = inv(AK'*AK);
+%%
+figure
+zALeg = {};
+for i = 1: Nk
+    zALeg{i} = ['K', num2str(i)];
+end
+Az = B * AK' * matDTDz;
+
+Nz = length(z_data);
+R = tril(ones(Nz));
+D = Az*R;
+subplot(2,1,1)
+plot(z_data, Az');
+xlim([0, max(z_data)])
+% legend(zALeg);
+xlabel('z');
+ylabel('Az');
+subplot(2,1,2)
+plot(z_data, D');
+xlim([0, max(z_data)])
+xlabel('z');
+ylabel('Az*R');
+legend(zALeg);
+
 
 %% Compute rho
 dZfine = 5;
@@ -49,16 +73,7 @@ ARho = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, 
 %%
 D = B * AK' * ARho
 
-% %%
-% figure
-% C = B*A'*matDTDz;
-% Nz = length(z_data);
-% R = tril(ones(Nz));
-% D = C*R;
-% subplot(2,1,1)
-% plot(C');
-% subplot(2,1,2)
-% plot(D');
+%%
 
 % %% Visualize measurement
 % % mesh for measurment

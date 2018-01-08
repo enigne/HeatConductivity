@@ -12,7 +12,7 @@
 %   'C'             - heat capacity;
 %   'interpOption'  - intepolation method (linear by default).
 % The return values:
-%   'dTdz'          - The derivatives of T with respect to z at t-z plan.
+%   'A'             - The sensitivity matrix of K.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
 % Date: 2018-01-08
