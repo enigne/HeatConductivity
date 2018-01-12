@@ -47,7 +47,7 @@ function [A] = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRh
     for i = 1 : NRho
         heatParam_temp.rho = heatParam.rho + dRhovec(:, i);
         T_sol_temp = solveHeat(t, z, K0, heatParam_temp);
-        dT_temp = (T0_sol - T_sol_temp) / dRho;
+        dT_temp = (T_sol_temp - T0_sol) / dRho;
         dT_temp = dT_temp(xInd, :);
         A(:, i) = dT_temp(:);
     end

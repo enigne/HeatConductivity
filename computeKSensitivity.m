@@ -43,7 +43,7 @@ function [A] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, r
     
     for i = 1 : Nk
         T_sol_temp = solveHeat(t, z, K0+dKvec(:,i), heatParam);
-        dT_temp = (T0_sol - T_sol_temp) /dK;
+        dT_temp = ( T_sol_temp - T0_sol ) /dK;
         dT_temp = dT_temp(xInd, :);
         A(:, i) = dT_temp(:);
     end
