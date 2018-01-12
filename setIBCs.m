@@ -19,9 +19,16 @@
 % Date: 2018-01-03
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption)
-    % Spatial grid
-    z = linspace(min(z_data), max(z_data), Nz)';
+function [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption, zRange)
+    if nargin < 7
+        % Spatial grid
+        z = linspace(min(z_data), max(z_data), Nz)';
+    else
+        % take the minimal range between z_data and zRange
+        zmin = max(min(z_data), zRange(1));
+        zmax = min(max(z_data), zRange(2));
+        z = linspace(zmin, zmax, Nz)';
+    end
     dz = abs(z(2) - z(1));
 
     % Interpolate initial condition
