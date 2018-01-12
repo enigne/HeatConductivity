@@ -8,7 +8,7 @@ function Pdata = projectY2D(data, xdata, ydata, X, Y)
     Pdata = zeros(nY, nX);
 
     for i = 1: nX
-        Pdata(:,i) = interp1(ydata, data(:,i), Y);
+        Pdata(:,i) = interp1(ydata, data(:,i), Y, 'spline', 'extrap');
     end
 
 end
