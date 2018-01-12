@@ -43,9 +43,9 @@ function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz, noise)
         % Time vector (row)
         t_data = data.t';
         % Position vector (column)
-        z_data = data.z_corr{dataIndex};
+        z_data = data.z_i{dataIndex};
         % Temperature
-        T_data = data.T_corr{dataIndex};
+        T_data = data.T_i{dataIndex};
     else
         % Take the average value
         % Time vector (row)
@@ -70,6 +70,9 @@ function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz, noise)
 
     % Time discretization same size as measurment
     Nt = length(t_data);
+    
+    % cut the data according to the range of K
+    [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
 
     % Set initial and boundary conditions
     [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption);
