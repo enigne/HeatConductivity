@@ -9,11 +9,11 @@ nInd = length(dataIndex);
 
 %% Initialize
 Nk = 5;
-zK = linspace(0, 12, Nk)';
+zK = linspace(0, 8, Nk)';
 K0 = 0.4e6*ones(Nk, 1);
 
 %% Optimize for the averaged value with different resolution
-N_opt_ave = [31, 61, 121, 241, 361, 481, 601];
+N_opt_ave = [21, 41, 81, 161, 321, 641];
 K_opt_ave = zeros(Nk, length(N_opt_ave));
 
 for i = 1 : length(N_opt_ave)
@@ -22,7 +22,7 @@ for i = 1 : length(N_opt_ave)
 end
 
 %% Optimize for each hole
-Nz = 241;
+Nz = 161;
 K_opt_ind = zeros(Nk, nInd);
 for i = 1:nInd
     K0 = inverseK(data, dataIndex(i), zK, K0, Nz);
@@ -31,7 +31,7 @@ end
 
 %% Optimize for the averaged value with noises
 noise = [0.1, 0.2, 0.5, 1, 2];
-Nz = 241;
+Nz = 161;
 K_opt_noiseT = zeros(Nk, length(noise));
 
 for i = 1 : length(noise)
