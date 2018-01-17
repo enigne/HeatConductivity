@@ -18,7 +18,7 @@
 % Date: 2018-01-08
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [A] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, interpOption)
+function [A] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption)
     Nz = length(z_data);
     Nzfine = dZfine * (Nz - 1) + 1;
     xInd = [1:dZfine:Nzfine]';
@@ -47,4 +47,5 @@ function [A] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, r
         dT_temp = dT_temp(xInd, :);
         A(:, i) = dT_temp(:);
     end
+    A = A(mask, :);
 end

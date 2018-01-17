@@ -6,15 +6,19 @@ interpOption = 'linear';
 
 % Load optimal K
 % load('invK_1e8_Nz241.mat');
-load('invK_1e8_Nz601.mat');
+% load('invK_1e8_Nz601.mat');
+load('invK_0_8.mat');
 K0 = K_opt_ave(:,end);
 % Initial Heat conductivity
 Nk = length(K0);
-zK = linspace(0, 12, Nk)';
+zK = linspace(0, 8, Nk)';
 
 % Load the data set
 load('LF_4_aver.mat');
 data = LF{1,1}.T;
+
+% Load average and mean
+load('ML_data.mat');
 
 % Measurements
 % Time vector (row)
@@ -24,18 +28,26 @@ z_data = data.z_a;
 % Temperature
 T_data = data.T_a;
 
+% cut the data according to the range of K
+[T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
+[T_E, ~] = cutData(T_E, z_data, [zK(1),zK(end)]);
+[T_S, ~] = cutData(T_S, z_data, [zK(1),zK(end)]);
+
+% mask for T < -2
+mask = find( T_data < 20 );
+
 % Physical parameters
 rho = 900;
 C = 152.5 + 7.122 * (273.15 - 10);
 
 %% Compute dTdz
-dZfine = 2;
-[dTdz, matDTDz] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, interpOption);
+dZfine = 5;
+[dTdz, matDTDz] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, mask, interpOption);
 
 %% Compute A  
-dZfine = 5;
+dZfine = 10;
 dK = 0.001;
-AK = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, interpOption);
+AK = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption);
 B = inv(AK'*AK);
 %%
 figure
@@ -67,36 +79,44 @@ dZfine = 5;
 dRho = 0.001;
 NRho = 5;
 rho = 900 * ones(NRho,1);
-zRho = linspace(0, 12, NRho)';
+zRho = linspace(0, 8, NRho)';
 
-ARho = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, zRho, C, interpOption);
+ARho = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, zRho, C, mask, interpOption);
 %%
-D = B * AK' * ARho
+D = - B * AK' * ARho
 
-%%
+%% compute weight
+w = 1./ (T_S.^(0.5));
+W = w(mask);
+weightedAK = AK' * spvardiag(W);
+weightB = inv(weightedAK * AK);
 
-% %% Visualize measurement
-% % mesh for measurment
-% [X_data, Y_data] = meshgrid(t_data, z_data);
-%
-% figure
-% subplot(2, 1, 1)
-% surf(X_data, Y_data, Tcenter)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
+% % %% Visualize measurement
+% mesh for measurment
+[X_data, Y_data] = meshgrid(t_data, z_data);
+
+figure3
+indicator = 1.* (T_data < -2);
+subplot(2, 1, 1)
+surf(X_data, Y_data, w.*indicator)
+view(2)
+shading interp;
+colorbar
+colormap(jet)
+axis tight
 % caxis([-20, -2]);
-% grid off
-%
-%
-% subplot(2, 1, 2)
-% surf(X_data, Y_data, dTdz)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
-% caxis([-10, 10]);
-% grid off
+grid off
+
+
+subplot(2, 1, 2)
+
+%%
+figure
+surf(X_data, Y_data,  reshape(AK(:,4),size(X_data)))
+view(2)
+shading interp;
+colorbar
+colormap(jet)
+axis tight
+% caxis([-1, 1]);
+grid off

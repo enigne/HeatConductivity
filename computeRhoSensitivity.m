@@ -19,7 +19,7 @@
 % Date: 2018-01-08
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [A] = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, zRho, C, interpOption)
+function [A] = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, zRho, C, mask, interpOption)
     Nz = length(z_data);
     Nzfine = dZfine * (Nz - 1) + 1;
     xInd = [1:dZfine:Nzfine]';
@@ -51,4 +51,5 @@ function [A] = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRh
         dT_temp = dT_temp(xInd, :);
         A(:, i) = dT_temp(:);
     end
+    A = A(mask, :);
 end

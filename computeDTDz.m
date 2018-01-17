@@ -18,7 +18,7 @@
 % Date: 2018-01-08
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [dTdz, matDTDz] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, interpOption)
+function [dTdz, matDTDz] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, mask, interpOption)
     % Number of spatial discretization
     Nz = dZfine * (length(z_data)-1) + 1;
 
@@ -50,4 +50,6 @@ function [dTdz, matDTDz] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, r
     nDz = length(z_data);
     eyeDz = speye(nDz);
     matDTDz = sparse(repmat(eyeDz, Nt, 1)) .* dTdz(:);
+    
+    matDTDz = matDTDz(mask, :); 
 end
