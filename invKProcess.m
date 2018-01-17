@@ -1,10 +1,11 @@
 clear 
 close all
 %%
-load('invK_1e8_Nz241.mat');
+% load('invK_1e8_Nz241.mat');
+load('invK_0_8.mat');
 
 [Nz, Nk] = size(K_opt_ind);
-z = linspace(0,12,Nz);
+z = linspace(0,8,Nz);
 legendList = cell(Nk,1);
 figure
 for i = 1 : Nk
