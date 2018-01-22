@@ -19,7 +19,7 @@ function F = tempResidual(K, HeatSolver, z, t, f_data, heatParam)
     T_sol = HeatSolver(t, z, K, heatParam);
    
     err = T_sol - f_data;   
-    mask = (f_data<-2);
+    mask = (((f_data<-2) & (~isnan(err))));
     
     compareErr = err(mask);
     F = compareErr(:);
