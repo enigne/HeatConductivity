@@ -2,20 +2,20 @@
 % the whole vector by it
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The input variables:
-%   'zC'            - given coarse grid of KC;
-%   'rhoC'          - given variable coefficient KC;      
+%   'rhoC'          - given variable coefficient rhoC.rho and the
+%                     coordinates at rhoC.z.
 %   'z'             - z-coordinate.     
 % The return values:
 %   'rho'           - a piecewise linear function of z;       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-08
+% Date: 2018-01-22
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function rho =density(zC, rhoC, z)
-    if (length(rhoC) == 1)
-        rho = ones(size(z)) * rhoC;
+function rho =density(rhoC, z)
+    if (isstruct(rhoC))
+        rho = interp1(rhoC.z, rhoC.rho, z, 'linear');
     else
-        rho = interp1(zC, rhoC, z,'linear');
+        rho = ones(size(z)) * rhoC;
     end
 end

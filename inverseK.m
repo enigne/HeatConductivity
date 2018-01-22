@@ -18,20 +18,22 @@
 %   'zK'    	- z-coordinate of the K parameter
 %   'K0'     	- the initial guess of K;
 %   'Nz'        - number of grid for the computation;
+%   'rho'       - density of the ice;
+%   'noise'     - artificial noise.
 % The return values:
 %   'K_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-05
+% Date: 2018-01-22
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz, noise)
+function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
     % Check the input variables
-    if nargin >5 
-        flagNoise = 1;
-    else
-        flagNoise = 0;
+    if nargin < 7
         noise = 0;
+        if nargin < 6
+            rho = 900;
+        end
     end
     %% Initialize
 
@@ -57,13 +59,12 @@ function [K_opt] = inverseK(data, dataIndex, zK, K0, Nz, noise)
     end
     
     % Add noise 
-    if flagNoise 
+    if noise > 0 
         noiseT = noise*(1 - 2*rand(size(T_data)));
         T_data = T_data + noiseT;
     end
     
     % Physical parameters
-    rho = 900;
     C = 152.5 + 7.122 * (273.15 - 10);
 
     %% Solve Heat equation

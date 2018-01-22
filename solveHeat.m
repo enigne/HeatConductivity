@@ -20,16 +20,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [T]=solveHeat(t, z, K, heatParam)
-    %% 
+    %% Set up 
     dt = heatParam.dt;
     C = heatParam.C;
     T0 = heatParam.T0;
     TbcUp = heatParam.TbcUp;
     TbcDown = heatParam.TbcDown;
     
-    %% Get Kp on each z
+    % Get Kp on each z
     Kp = HeatConductivity(heatParam.zK, K, z);
-    rho = density(heatParam.zRho, heatParam.rho, z);
+    % Get rho on each z
+    rho = density(heatParam.rho, z);
     
     %% Initialization
     T_old = T0;
