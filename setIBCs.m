@@ -4,23 +4,24 @@
 %   'z_data'        - the z-coordinates of the measured data;
 %   't_data'        - the time of the data;
 %   'Nz'            - number of spatial discretization;
-%   'Nt'            - number of time discretization;
 %   'T_data'        - measured data(temperature);
-%   'interpOption'  - intepolation method (linear by default).
+%   'interpOption'  - intepolation method (linear by default);
+%   'zRange'        - cut-off range for z-coordinates
 % The return values:
 %   'Tbc'           - Dirichlet boundary condition for the given Nt grid;
 %   'T0'            - intial condition for the given Nz grid;
 %   'z'             - grid point of the spatial discretization;
 %   't'             - grid point of the time discretization;       
 %   'dz'            - step size of the spatial discretization;
+%   'Nt'            - number of time discretization;
 %   'dt'            - step size of the time discretization;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-03
+% Date: 2018-01-22
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption, zRange)
-    if nargin < 7
+function [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption, zRange)
+    if nargin < 6
         % Spatial grid
         z = linspace(min(z_data), max(z_data), Nz)';
     else
@@ -35,8 +36,9 @@ function [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, inter
     T0 = interp1(z_data, T_data(:,1), z, interpOption);
 
     % Time discretization 
-    t = linspace(min(t_data), max(t_data), Nt);
-    dt = abs(t(2) - t(1));
+    dt = min(diff(t_data));
+    t = min(t_data) : dt : max(t_data);
+    Nt = length(t);
 
     % Interpolate Boundary conditions
     Tbc.Up = interp1(t_data, T_data(1,:), t, interpOption);
