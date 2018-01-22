@@ -4,7 +4,7 @@ close all
 %% Initialize
 % Settings
 interpOption = 'linear';
-yearIndex = 4;
+yearIndex = 2;
 
 %% Load data
 load('LF_4_aver.mat');
@@ -39,9 +39,6 @@ Nk = 5;
 zK = linspace(0, 12, Nk)';
 K0 = 0.4e5*ones(Nk, 1);
 
-% Time discretization same size as measurment
-Nt = length(t_data);
-
 % cut the data according to the range of K
 [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
 
@@ -53,12 +50,12 @@ K_opt = inverseK(data, 0, zK, K0, Nz, rho);
 %% Solve Heat equation
 
 % Set initial and boundary conditions
-[Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption);
+[Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
 
 % Set Parameters for solving
 heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
 
-[T_sol] = solveHeat(t_data, z_data, K_opt, heatParam);
+[T_sol] = solveHeat(t, z, K_opt, heatParam);
 
 %% Visualize measurement
 % mesh for measurment
@@ -75,8 +72,9 @@ axis tight
 caxis([-20, -2]);
 grid off
 
+[X, Y] = meshgrid(t, z);
 subplot(2,1,2)
-surf(X_data,Y_data,T_sol)
+surf(X,Y,T_sol)
 view(2)
 shading interp;
 colorbar

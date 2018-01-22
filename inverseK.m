@@ -68,21 +68,18 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
     C = 152.5 + 7.122 * (273.15 - 10);
 
     %% Solve Heat equation
-
-    % Time discretization same size as measurment
-    Nt = length(t_data);
-    
+  
     % cut the data according to the range of K
     [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
 
     % Set initial and boundary conditions
-    [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nz, Nt, T_data, interpOption);
+    [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
 
     % Set Parameters for solving
     heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
 
     % Project data to the computational domain
-    f_data = projectY2D(T_data, t_data, z_data, t, z);
+    f_data = project2D(T_data, t_data, z_data, t, z);
 
     %% Optimisation
     % Create the objective function
