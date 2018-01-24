@@ -13,21 +13,20 @@
 %   'interpOption'  - intepolation method (linear by default).
 % The return values:
 %   'A'             - The sensitivity matrix of K.
+%   'z'             - The z-coordinates for the computation
+%   't'             - The time spots for the computation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-08
+% Date: 2018-01-24
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [A] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption)
+function [A, z, t] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption)
     Nz = length(z_data);
     Nzfine = dZfine * (Nz - 1) + 1;
     xInd = [1:dZfine:Nzfine]';
-
-    % Time discretization same size as measurment
-    Nt = length(t_data);
-    
+   
     % Set initial and boundary conditions
-    [Tbc, T0, z, t, dz, dt] = setIBCs(z_data, t_data, Nzfine, Nt, T_data, interpOption);
+    [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nzfine, T_data, interpOption);
     
     % Set Parameters for solving
     heatParam = setHeatParam(dt, Nt, dz, Nzfine, rho, C, T0, Tbc.Up, Tbc.Down, zK);
@@ -47,5 +46,10 @@ function [A] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, r
         dT_temp = dT_temp(xInd, :);
         A(:, i) = dT_temp(:);
     end
-    A = A(mask, :);
+
+    % Set the area with mask to 0
+    A(mask, :) = 0;
+    
+    % Scale the unit in time from days to seconds
+    A = A .* (24*3600);
 end
