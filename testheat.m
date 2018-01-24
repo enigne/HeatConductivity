@@ -33,7 +33,7 @@ function K_opt = testheat(yearIndex)
 
     %% Initialize
     Nk = 5;
-    zK = linspace(0, 10, Nk)';
+    zK = linspace(0, 8, Nk)';
     K0 = 0.4e5*ones(Nk, 1);
 
     % cut the data according to the range of K
