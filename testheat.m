@@ -7,34 +7,20 @@ function K_opt = testheat(yearIndex)
     load('LF_4_aver.mat');
     load('densityData.mat');
 
-    %%
+    % Assign data
     data = LF{yearIndex}.T;
     rho = rhoData{yearIndex};
 
-    dIndex = 0;
-
-    % Measurements
-    % Time vector (row)
-    t_data = data.t';
-    % Position vector (column)
-    z_data = data.z_a;
-    % z_data = data.z_corr{dIndex};
-    % Temperature
-    T_data = data.T_a;
-    % T_data = data.T_corr{dIndex};
-
-    % % Add noise
-    % noise = 0.0*(1-2*rand(size(T_data)));
-    % T_data = T_data + noise;
-
+    % Load Measurements
+    [t_data, z_data, T_data] = loadData(data);
+    
     % Physical parameters
     C = 152.5 + 7.122 * (273.15 - 10);
 
-
     %% Initialize
     Nk = 5;
-    zK = linspace(0, 8, Nk)';
-    K0 = 0.4e5*ones(Nk, 1);
+    zK = linspace(0.5, 8, Nk)';
+    K0 = 1e5*ones(Nk, 1);
 
     % cut the data according to the range of K
     [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);

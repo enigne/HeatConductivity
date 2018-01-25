@@ -24,7 +24,7 @@
 %   'K_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-22
+% Date: 2018-01-25
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
@@ -40,23 +40,8 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
     % Settings
     interpOption = 'linear';
     
-    % Measurements
-    if (dataIndex > 0) && (dataIndex < length(data.T))
-        % Time vector (row)
-        t_data = data.t';
-        % Position vector (column)
-        z_data = data.z_i{dataIndex};
-        % Temperature
-        T_data = data.T_i{dataIndex};
-    else
-        % Take the average value
-        % Time vector (row)
-        t_data = data.t';
-        % Position vector (column)
-        z_data = data.z_a;
-        % Temperature
-        T_data = data.T_a;        
-    end
+    % Load Measurements
+    [t_data, z_data, T_data] = loadData(data, dataIndex);
     
     % Add noise 
     if noise > 0 
@@ -85,7 +70,8 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
     % Create the objective function
     objF = @(K) tempResidual(K, @solveHeat, z, t, f_data, heatParam);
     % Set options
-    options = optimoptions('lsqnonlin','Display','iter','typicalX', K0,'TolFun', 1e-8, 'TolX', 1e-8);
+    options = optimoptions('lsqnonlin','Display','iter', 'algorithm', 'levenberg-marquardt', ...
+        'typicalX', K0,'TolFun', 1e-10, 'TolX', 1e-10);
     % Solve
     [K_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, K0, [], [],options);
 end
