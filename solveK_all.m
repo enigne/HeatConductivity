@@ -2,7 +2,7 @@ clear
 close all
 
 %%
-yearIndex = 1:4;
+yearIndex = 1: 4;
 K_opt = {};
 
 for i = 1: length(yearIndex)
@@ -11,15 +11,18 @@ end
 
 %%
 K_mat = cell2mat(K_opt) ./ 24./3600;
-z = linspace(0, 8, 5);
+z = linspace(0.5, 8, 5);
 
 figure
 for i = 1: length(yearIndex)
     plot(z , K_mat(:, i))
     hold on
 end
-xlim([0, 8])
+xlim([0.5, 8])
 ylim([0, 3.5])
 xlabel('z')
 ylabel('K')
 legend({'2012', '2013', '2014', '2015'})
+
+z_0_.K_mat = K_mat;
+z_0_.K_opt = K_opt;
