@@ -45,12 +45,16 @@ function [dTdz, matDTDz, z, t] = computeDTDz(z_data, t_data, T_data, dZfine, zK,
     % one-side finite differences
     dTdz = 1.0 / dz .* (Tup - Tcenter);
     
+    % Project to the data points 
+    dTdz = project2D(dTdz, t, z(xInd), t_data, z_data);
+
     % Set the area with mask to 0
     dTdz(mask) = 0;
     
     % convert to matrix-vecotr multiplication form
     nDz = length(z_data);
+    nTdata = length(t_data);
     eyeDz = speye(nDz);
     
-    matDTDz = sparse(repmat(eyeDz, Nt, 1)) .* dTdz(:);        
+    matDTDz = sparse(repmat(eyeDz, nTdata, 1)) .* dTdz(:);        
 end

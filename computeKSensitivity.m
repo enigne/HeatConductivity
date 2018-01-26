@@ -36,14 +36,17 @@ function [A, z, t] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0,
     
     %%
     Nk = length(K0);
+    Nt_data = length(t_data);
     
     dKvec = dK * speye(Nk);
-    A = zeros(Nz * Nt, Nk);
+    A = zeros(Nz * Nt_data, Nk);
     
     for i = 1 : Nk
         T_sol_temp = solveHeat(t, z, K0+dKvec(:,i), heatParam);
         dT_temp = ( T_sol_temp - T0_sol ) /dK;
-        dT_temp = dT_temp(xInd, :);
+            
+        dT_temp = project2D(dT_temp, t, z, t_data, z_data);
+
         A(:, i) = dT_temp(:);
     end
 

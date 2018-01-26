@@ -37,8 +37,10 @@ function [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, inter
 
     % Time discretization 
     dt = min(diff(t_data));
-    t = min(t_data) : dt : max(t_data);
-    Nt = length(t);
+    Nt = ceil( (max(t_data) - min(t_data)) / dt );
+    t = linspace(min(t_data), max(t_data), Nt);
+    % adjust dt
+    dt = abs(t(2) - t(1));
 
     % Interpolate Boundary conditions
     Tbc.Up = interp1(t_data, T_data(1,:), t, interpOption);

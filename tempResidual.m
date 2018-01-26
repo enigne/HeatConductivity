@@ -3,8 +3,8 @@
 % The input variables:
 %   'K'             - heat conductivity for the model;
 %   'HeatSolver'    - function handler for the heat equation;
-%   'z'             - the z-coordinates of the numerical model;
 %   't'             - the time of the numerical model;
+%   'z'             - the z-coordinates of the numerical model;
 %   'f_data'        - measured data projected to the computational nodes;
 %   'heatParam'     - other coefficients for the heat equation:      
 % The return values:
@@ -15,11 +15,16 @@
 % Date: 2018-01-04
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function F = tempResidual(K, HeatSolver, z, t, f_data, heatParam)
+function F = tempResidual(K, HeatSolver, t, z, T_data, t_data, z_data, heatParam)
+    % Project data to the computational domain
+%     f_data = project2D(T_data, t_data, z_data, t, z);
+
     T_sol = HeatSolver(t, z, K, heatParam);
    
-    err = T_sol - f_data;   
-    mask = (((f_data<-2) & (~isnan(err))));
+    T_sol_int = project2D(T_sol, t, z, t_data, z_data);
+    err = T_sol_int - T_data;   
+    
+    mask = (((T_data<-2) & (~isnan(err))));
     
     compareErr = err(mask);
     F = compareErr(:);
