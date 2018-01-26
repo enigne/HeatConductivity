@@ -37,7 +37,7 @@ function [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, inter
 
     % Time discretization 
     dt = min(diff(t_data));
-    Nt = ceil( (max(t_data) - min(t_data)) / dt );
+    Nt = ceil( (max(t_data) - min(t_data)) / dt ) + 1;
     t = linspace(min(t_data), max(t_data), Nt);
     % adjust dt
     dt = abs(t(2) - t(1));
