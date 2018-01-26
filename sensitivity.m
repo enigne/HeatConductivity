@@ -3,7 +3,7 @@ close all;
 %% Initialize
 % Settings
 interpOption = 'linear';
-yearIndex = 1;
+yearIndex = 2;
 
 %% Load data
 load('LF_4_aver.mat');
@@ -12,7 +12,7 @@ load('invK_realRho.mat');
 
 data = LF{yearIndex}.T;
 rho = rhoData{yearIndex};
-K0 = z_05_8.K_opt{yearIndex};
+K0 = z_05_8_ondata.K_opt{yearIndex};
 
 % Initial Heat conductivity
 Nk = length(K0);
@@ -23,8 +23,11 @@ Nk = length(K0);
 % z-coordinates of K
 zK = linspace(0.5, 8, Nk)';
 
-% cut the data according to the range of K
+% Cut the data according to the range of K
 [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
+
+% Cut the time series with Nan
+[T_data, t_data] = cutNan(T_data, t_data);
 
 % % Load average and mean
 % load('ML_data.mat');
@@ -33,16 +36,17 @@ zK = linspace(0.5, 8, Nk)';
 
 % mask for T >= -2 put 0
 mask = find( T_data >= -2);
+mask = [];
 
 % Physical parameters
 C = 152.5 + 7.122 * (273.15 - 10);
 
 %% Compute dTdz
-dZfine = 20;
+dZfine = 5;
 [dTdz, matDTDz, ~, t] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, mask, interpOption);
 
 %% Compute A  
-dZfine = 10;
+dZfine = 5;
 dK = 0.001;
 A = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption);
 B = A'*A;
@@ -50,13 +54,13 @@ AK = B \ A';
 
 %% Plot AK and A
 figure
-[X_data, Y_data] = meshgrid(t, z_data);
+[X_data, Y_data] = meshgrid(t_data, z_data);
 for i = 1 : 6
     if i > 1
         p_data = reshape(AK(i-1,:), size(X_data));
         subTitle = ['K',num2str(i-1)];
     else
-        p_data = project2D(T_data, t_data, z_data, t, z_data);
+        p_data =  T_data;
         subTitle = ['Measurements in 201',num2str(yearIndex+1)];
     end
     
@@ -102,10 +106,10 @@ legend(zALeg);
 
 
 %% compute weight
-w = 1./ (T_S.^(0.5));
-W = w(mask);
-weightedAK = AK' * spvardiag(W);
-weightB = inv(weightedAK * AK);
+% w = 1./ (T_S.^(0.5));
+% W = w(mask);
+% weightedAK = AK' * spvardiag(W);
+% weightB = inv(weightedAK * AK);
 
 % %% Compute rho
 % dZfine = 5;
@@ -120,19 +124,19 @@ weightB = inv(weightedAK * AK);
 
 %% Visualize measurement
 % mesh for measurment
-% [X_data, Y_data] = meshgrid(t, z_data);
-% 
-% figure
-% % indicator = 1.* (T_data < -2);
-% % subplot(2, 1, 1)
-% surf(X_data, Y_data, dTdz)
-% view(2)
-% shading interp;
-% colorbar
-% colormap(jet)
-% axis tight
-% caxis([-2, 2]);
-% grid off
+[X_data, Y_data] = meshgrid(t_data, z_data);
+
+figure
+% indicator = 1.* (T_data < -2);
+% subplot(2, 1, 1)
+surf(X_data, Y_data, dTdz)
+view(2)
+shading interp;
+colorbar
+colormap(jet)
+axis tight
+caxis([-2, 2]);
+grid off
 
 % 
 % subplot(2, 1, 2)
