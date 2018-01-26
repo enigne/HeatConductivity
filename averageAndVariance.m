@@ -27,7 +27,9 @@ for i = 1 : nInd
     T_data = data.T_i{dataIndex(i)};
     
     % Project data to the computational domain
-    f_data = project2D(T_data, t, z_data, t, z_a);
+%     f_data = project2D(T_data, t, z_data, t, z_a);
+    
+    f_data = project2DY(T_data, z_data, z_a);
     
     res = (f_data - T_a) .^ 2;
     
@@ -35,7 +37,7 @@ for i = 1 : nInd
     T_S = T_S + res;
 end
 
-T_E = T_E / nInd;
+T_E = T_E / (nInd);
 T_S = T_S / (nInd - 1);
 
 
@@ -47,7 +49,7 @@ shading interp;
 colorbar
 colormap(jet)
 axis tight
-
+% caxis([-1e-10, 1e-10])
 %%
 dataS{yearIndex}.T_S = T_S;
 dataS{yearIndex}.T_E = T_E;
