@@ -6,6 +6,7 @@ function K_opt = testheat(yearIndex)
     %% Load data
     load('LF_4_aver.mat');
     load('densityData.mat');
+    load('summary.mat');
 
     % Assign data
     data = LF{yearIndex}.T;
@@ -19,15 +20,25 @@ function K_opt = testheat(yearIndex)
 
     %% Initialize
     Nk = 5;
-    zK = linspace(0.5, 8, Nk)';
+    zK = linspace(1, 8, Nk)';
     K0 = 1e5*ones(Nk, 1);
 
     % cut the data according to the range of K
-    [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
+    [T_data, ~, indCutZ] = cutData(T_data, z_data, [zK(1),zK(end)]);
+   
+    % Take weights into account
+    if ((yearIndex == 1) || (yearIndex == 3))
+        T_S = dataS{yearIndex}.T_S(indCutZ, :);
+    else 
+        T_S = ones(size(T_data));
+    end
+    w = 1./ (T_S.^(0.5));
 
+    z_data = z_data(indCutZ);
+    
     %% Optimize for the averaged value
     Nz = length(z_data);
-    K_opt = inverseK(data, 0, zK, K0, Nz, rho);
+    K_opt = inverseK(data, 0, zK, K0, Nz, rho, w);
 
     %% Solve Heat equation
 
@@ -45,13 +56,13 @@ function K_opt = testheat(yearIndex)
 
     figure
     subplot(2, 1, 1)
-    surf(X_data, Y_data, T_data)
+    surf(X_data, Y_data, T_S)
     view(2)
     shading interp;
     colorbar
     colormap(jet)
     axis tight
-    caxis([-20, -2]);
+%     caxis([-20, -2]);
     xlabel('t')
     ylabel('z')
     title(['Measurements at 201', num2str(yearIndex+1)]);

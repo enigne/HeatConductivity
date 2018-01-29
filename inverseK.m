@@ -27,12 +27,15 @@
 % Date: 2018-01-25
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
+function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise)
     % Check the input variables
-    if nargin < 7
+    if nargin < 8
         noise = 0;
-        if nargin < 6
-            rho = 900;
+        if nargin < 7
+            w = 1;
+            if nargin < 6
+                rho = 900;
+            end
         end
     end
     %% Initialize
@@ -55,7 +58,7 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
     %% Solve Heat equation
   
     % cut the data according to the range of K
-    [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
+    [T_data, z_data, ~] = cutData(T_data, z_data, [zK(1),zK(end)]);
 
     % Set initial and boundary conditions
     [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
@@ -64,8 +67,10 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, noise)
     heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
 
     %% Optimisation
+%     T_data(2:end-1,2:end-1)= T_data(2:end-1,2:end-1) + 0.1;
+
     % Create the objective function
-    objF = @(K) tempResidual(K, @solveHeat, t, z, T_data, t_data, z_data, heatParam);
+    objF = @(K) tempResidual(K, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
     % Set options
     options = optimoptions('lsqnonlin','Display','iter', 'algorithm', 'levenberg-marquardt', ...
         'typicalX', K0,'TolFun', 1e-10, 'TolX', 1e-10);
