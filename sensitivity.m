@@ -3,7 +3,7 @@ close all;
 %% Initialize
 % Settings
 interpOption = 'linear';
-yearIndex = 1;
+yearIndex = 4;
 
 %% Load data
 load('LF_4_aver.mat');
@@ -12,7 +12,8 @@ load('invK_realRho.mat');
 
 data = LF{yearIndex}.T;
 rho = rhoData{yearIndex};
-K0 = z_05_8_ondata.K_opt{yearIndex};
+% K0 = z_05_8_ondata.K_opt{yearIndex};
+K0 = z_1_8_weighted.K_opt{yearIndex};
 
 % Initial Heat conductivity
 Nk = length(K0);
@@ -21,7 +22,19 @@ Nk = length(K0);
 [t_data, z_data, T_data] = loadData(data);
 
 % z-coordinates of K
-zK = linspace(0.5, 8, Nk)';
+zK = linspace(1, 8, Nk)';
+
+% Load average and mean
+load('summary.mat');
+% Take weights into account
+if ((yearIndex == 1) || (yearIndex == 3))
+    T_S = dataS{yearIndex}.T_S ;
+else
+    T_S = ones(size(T_data));
+end
+
+[T_S, ~] = cutData(T_S, z_data, [zK(1),zK(end)]);
+
 
 % Cut the data according to the range of K
 [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
@@ -29,12 +42,6 @@ zK = linspace(0.5, 8, Nk)';
 % Cut the time series with Nan in T_data
 [T_data, t_data, noNanInd] = cutNan(T_data, t_data);
 
-% Load average and mean
-load('summary.mat');
-[T_E, ~] = cutData(dataS{yearIndex}.T_E, z_data, [zK(1),zK(end)]);
-[T_S, ~] = cutData(dataS{yearIndex}.T_S, z_data, [zK(1),zK(end)]);
-
-T_E = T_E(: , noNanInd);
 T_S = T_S(: , noNanInd);
 
 % mask for T >= -2 put 0
@@ -61,6 +68,8 @@ W(mask) = 0;
 weightedA = A' * spvardiag(W);
 weightedB = weightedA * A;
 weightedAK = weightedB \ weightedA;
+
+weightedSE = sqrt( diag( inv(weightedB) ) );
 %% Plot AK and A
 figure
 [X_data, Y_data] = meshgrid(t_data, z_data);
@@ -87,7 +96,7 @@ for i = 1 : 6
     if i == 1
         caxis([-20, -2]);
     else
-        caxis([-1, 1]);
+%         caxis([-1, 1]);
 
     end
     grid off
@@ -117,22 +126,27 @@ for i = 1 : 6
     if i == 1
         caxis([0, 15]);
     else
-        caxis([-6, 6]);
+%         caxis([-6, 6]);
     end
     grid off
 end
 
 %% Plot Az and Az*R
-figure
+
 zALeg = {};
 for i = 1: Nk
     zALeg{i} = ['K', num2str(i)];
 end
 Az = B \ A' * matDTDz;
 
+weightedAz = weightedAK * matDTDz;
+
 Nz = length(z_data);
 R = tril(ones(Nz));
-D = Az*R;
+D = Az * R;
+weightedD = weightedAz * R;
+
+figure
 subplot(2,1,1)
 plot(z_data, Az');
 xlim([min(z_data), max(z_data)])
@@ -146,12 +160,38 @@ xlabel('z');
 ylabel('Az*R');
 legend(zALeg);
 
+figure
+subplot(2,1,1)
+plot(z_data, weightedAz');
+xlim([min(z_data), max(z_data)])
+% legend(zALeg);
+xlabel('z');
+ylabel('Weighted Az');
+subplot(2,1,2)
+plot(z_data, weightedD');
+xlim([min(z_data), max(z_data)])
+xlabel('z');
+ylabel('Weighted Az*R');
+legend(zALeg);
 
-%% Compute rho
-dZfine = 5;
-dRho = 0.001;
-ARho = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, C, mask, interpOption);
-
-
-%%
-% D = - B * AK' * ARho
+% 
+% %% Compute rho
+% dZfine = 5;
+% dRho = 0.001;
+% rho.rho = interp1(rho.z, rho.rho, z_data);
+% rho.z = z_data;
+% ARho = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, C, mask, interpOption);
+% 
+% 
+% % %%
+% D =   B \ A' * ARho;
+% 
+% %%
+% figure
+%     surf(X_data, Y_data, dTdz);
+%     view(2)
+%     shading interp;
+%     colorbar
+%     colormap(jet)
+%     axis tight
+% caxis([-4,4])
