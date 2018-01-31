@@ -1,4 +1,9 @@
-function K_opt = testheat(yearIndex)
+function K_opt = testheat(yearIndex, dataIndex)
+    %
+    if nargin < 2
+        dataIndex = 0;
+    end
+    
     %% Initialize
     % Settings
     interpOption = 'linear';
@@ -13,7 +18,7 @@ function K_opt = testheat(yearIndex)
     rho = rhoData{yearIndex};
 
     % Load Measurements
-    [t_data, z_data, T_data] = loadData(data);
+    [t_data, z_data, T_data] = loadData(data, dataIndex);
     
     % Physical parameters
     C = 152.5 + 7.122 * (273.15 - 10);
@@ -38,7 +43,7 @@ function K_opt = testheat(yearIndex)
     
     %% Optimize for the averaged value
     Nz = length(z_data);
-    K_opt = inverseK(data, 0, zK, K0, Nz, rho, w);
+    K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w);
 
     %% Solve Heat equation
 
@@ -56,13 +61,13 @@ function K_opt = testheat(yearIndex)
 
     figure
     subplot(2, 1, 1)
-    surf(X_data, Y_data, T_S)
+    surf(X_data, Y_data, T_data)
     view(2)
     shading interp;
     colorbar
     colormap(jet)
     axis tight
-%     caxis([-20, -2]);
+    caxis([-20, -2]);
     xlabel('t')
     ylabel('z')
     title(['Measurements at 201', num2str(yearIndex+1)]);
