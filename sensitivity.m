@@ -3,7 +3,7 @@ close all;
 %% Initialize
 % Settings
 interpOption = 'linear';
-yearIndex = 4;
+yearIndex = 1;
 
 %% Load data
 load('LF_4_aver.mat');
@@ -66,7 +66,7 @@ w = 1./ (T_S.^(0.5));
 W = w(:);
 W(mask) = 0;
 weightedA = A' * spvardiag(W);
-weightedB = weightedA * A;
+weightedB = weightedA * weightedA';
 weightedAK = weightedB \ weightedA;
 
 weightedSE = sqrt( diag( inv(weightedB) ) );
@@ -96,7 +96,7 @@ for i = 1 : 6
     if i == 1
         caxis([-20, -2]);
     else
-%         caxis([-1, 1]);
+%         caxis([-5e-5, 5e-5]);
 
     end
     grid off
@@ -126,7 +126,8 @@ for i = 1 : 6
     if i == 1
         caxis([0, 15]);
     else
-%         caxis([-6, 6]);
+%         caxis([-5e-6, 5e-6]);
+        caxis([-1e-5, 1e-5]);
     end
     grid off
 end
@@ -166,14 +167,27 @@ plot(z_data, weightedAz');
 xlim([min(z_data), max(z_data)])
 % legend(zALeg);
 xlabel('z');
-ylabel('Weighted Az');
+ylabel('A_z');
 subplot(2,1,2)
 plot(z_data, weightedD');
 xlim([min(z_data), max(z_data)])
 xlabel('z');
-ylabel('Weighted Az*R');
+ylabel('A_zR');
 legend(zALeg);
 
+
+%% 
+
+figure
+surf(X_data, Y_data, dTdz);
+view(2)
+shading interp;
+colorbar
+colormap(jet)
+axis tight
+xlabel('t');
+ylabel('z');
+caxis([-4, 4])
 % 
 % %% Compute rho
 % dZfine = 5;
