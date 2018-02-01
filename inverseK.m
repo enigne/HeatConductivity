@@ -19,18 +19,18 @@
 %   'K0'     	- the initial guess of K;
 %   'Nz'        - number of grid for the computation;
 %   'rho'       - density of the ice;
-%   'noise'     - artificial noise.
+%   'noise'     - artificial noise matrix.
 % The return values:
 %   'K_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-25
+% Date: 2018-01-31
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise)
     % Check the input variables
     if nargin < 8
-        noise = 0;
+        noise = [];
         if nargin < 7
             w = 1;
             if nargin < 6
@@ -47,8 +47,9 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise)
     [t_data, z_data, T_data] = loadData(data, dataIndex);
     
     % Add noise 
-    if noise > 0 
-        noiseT = noise*(1 - 2*rand(size(T_data)));
+    if ~isempty(noise)
+        noiseT = zeros(size(T_data));
+        noiseT(noise.zInd, noise.tInd) = noise.noise;
         T_data = T_data + noiseT;
     end
     

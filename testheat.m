@@ -1,9 +1,11 @@
-function K_opt = testheat(yearIndex, dataIndex)
+function K_opt = testheat(yearIndex, dataIndex, perturbT)
     %
-    if nargin < 2
-        dataIndex = 0;
+    if nargin < 3 
+        perturbT = [];
+        if nargin < 2
+            dataIndex = 0;
+        end
     end
-    
     %% Initialize
     % Settings
     interpOption = 'linear';
@@ -43,7 +45,7 @@ function K_opt = testheat(yearIndex, dataIndex)
     
     %% Optimize for the averaged value
     Nz = length(z_data);
-    K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w);
+    K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, perturbT);
 
     %% Solve Heat equation
 
