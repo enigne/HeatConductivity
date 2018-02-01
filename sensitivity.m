@@ -55,18 +55,19 @@ dZfine = 5;
 [dTdz, matDTDz, ~, t] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, mask, interpOption);
 
 %% Compute A  
-dZfine = 5;
-dK = 0.001;
+dZfine = 1;
+dK = 1e-3;
 A = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption);
 B = A'*A;
 AK = B \ A';
+SE = sqrt( diag( inv(B) ) );
 
 %% compute weight
-w = 1./ (T_S.^(0.5));
+w = 1./ ((T_S));
 W = w(:);
 W(mask) = 0;
 weightedA = A' * spvardiag(W);
-weightedB = weightedA * weightedA';
+weightedB = weightedA * A;
 weightedAK = weightedB \ weightedA;
 
 weightedSE = sqrt( diag( inv(weightedB) ) );
@@ -109,7 +110,7 @@ for i = 1 : 6
         p_data = reshape(weightedAK(i-1,:), size(X_data));
         subTitle = ['K',num2str(i-1)];
     else
-        p_data = reshape(W, size(X_data));
+        p_data = reshape(W.^0.5, size(X_data));
         subTitle = ['Weights in 201',num2str(yearIndex+1)];
     end
     
@@ -126,8 +127,8 @@ for i = 1 : 6
     if i == 1
         caxis([0, 15]);
     else
-%         caxis([-5e-6, 5e-6]);
-        caxis([-1e-5, 1e-5]);
+        caxis([-2e-4, 2e-4]);
+%         caxis([-1e-5, 1e-5]);
     end
     grid off
 end
