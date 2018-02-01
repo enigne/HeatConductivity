@@ -2,8 +2,8 @@ clear
 close all
 
 %%
-yearIndex = 1:1;
-dataIndex = 1:9;
+yearIndex = 4;
+dataIndex = 0;
 K_opt = {};
 
 for i = 1: length(yearIndex)
@@ -30,7 +30,7 @@ ylabel('K')
 
 load('invK_realRho.mat')
 
-optK = z_1_8_weighted.K_mat(:,1);
+optK = z_1_8_weighted.K_mat(:, yearIndex);
 averK = mean(K_mat,2);
 stdK = std(K_mat, 0, 2);
 figure

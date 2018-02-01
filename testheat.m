@@ -20,7 +20,7 @@ function K_opt = testheat(yearIndex, dataIndex, perturbT)
     rho = rhoData{yearIndex};
 
     % Load Measurements
-    [t_data, z_data, T_data] = loadData(data, dataIndex);
+    [t_data, z_data, T_data, indt] = loadData(data, dataIndex);
     
     % Physical parameters
     C = 152.5 + 7.122 * (273.15 - 10);
@@ -35,7 +35,7 @@ function K_opt = testheat(yearIndex, dataIndex, perturbT)
    
     % Take weights into account
     if ((yearIndex == 1) || (yearIndex == 3))
-        T_S = dataS{yearIndex}.T_S(indCutZ, :);
+        T_S = dataS{yearIndex}.T_S(indCutZ, indt);
     else 
         T_S = ones(size(T_data));
     end
