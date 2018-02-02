@@ -3,7 +3,7 @@ close all;
 %% Initialize
 % Settings
 interpOption = 'linear';
-yearIndex = 1;
+yearIndex = 4;
 
 %% Load data
 load('LF_4_aver.mat');
@@ -35,9 +35,11 @@ end
 
 [T_S, ~] = cutData(T_S, z_data, [zK(1),zK(end)]);
 
-
 % Cut the data according to the range of K
 [T_data, z_data] = cutData(T_data, z_data, [zK(1),zK(end)]);
+
+% size of measurments
+Nz = length(z_data);
 
 % Cut the time series with Nan in T_data
 [T_data, t_data, noNanInd] = cutNan(T_data, t_data);
@@ -55,9 +57,9 @@ dZfine = 5;
 [dTdz, matDTDz, ~, t] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K0, rho, C, mask, interpOption);
 
 %% Compute A  
-dZfine = 1;
-dK = 1e-3;
-A = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption);
+dZfine = 5;
+dK = 1e-8;
+[A, ~, ~, error] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption);
 B = A'*A;
 AK = B \ A';
 SE = sqrt( diag( inv(B) ) );
@@ -71,6 +73,26 @@ weightedB = weightedA * A;
 weightedAK = weightedB \ weightedA;
 
 weightedSE = sqrt( diag( inv(weightedB) ) );
+
+%%
+% Nt = length(t_data);
+% newB = zeros(Nk);
+% V = zeros(Nz);
+% 
+% for i = 1 : Nt
+%     V = V + error((i-1)*Nz+1: i*Nz)*error((i-1)*Nz+1: i*Nz)';
+% end
+% V =  1./ (diag(V)/(Nt-Nk)) ;
+% V(1) = 0;
+% V(end) = 0;
+% 
+% for i = 1 : Nt
+%     tempA = A((i-1)*Nz+1: i*Nz,:);
+%     newB = newB + tempA' * spvardiag(V) * tempA;
+% end
+% 
+% sqrt(diag(inv(newB)))
+
 %% Plot AK and A
 figure
 [X_data, Y_data] = meshgrid(t_data, z_data);
@@ -143,7 +165,6 @@ Az = B \ A' * matDTDz;
 
 weightedAz = weightedAK * matDTDz;
 
-Nz = length(z_data);
 R = tril(ones(Nz));
 D = Az * R;
 weightedD = weightedAz * R;

@@ -20,7 +20,7 @@
 % Date: 2018-01-24
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [A, z, t] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption)
+function [A, z, t, error] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dK, rho, C, mask, interpOption)
     Nz = length(z_data);
     Nzfine = dZfine * (Nz - 1) + 1;
     xInd = [1:dZfine:Nzfine]';
@@ -53,6 +53,11 @@ function [A, z, t] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0,
     % Set the area with mask to 0
     A(mask, :) = 0;
     
+    
+    %% compute the variance
+    T0_sol_proj = project2D(T0_sol, t, z, t_data, z_data);
+    error = T_data - T0_sol_proj;
+    error = error(:);
 %     % Scale the unit in time from days to seconds
 %     A = A .* (24*3600);
 end
