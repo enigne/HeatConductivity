@@ -35,6 +35,6 @@ for i = 1: length(yearIndex)
     axis tight
     xlabel('t (days)');
     ylabel('z(m)');
-    title(['temperature gradient 201', num2str(yearIndex(i))])
+    title(['temperature gradient 201', num2str(yearIndex(i)+1)])
     caxis([-4, 4])
 end
