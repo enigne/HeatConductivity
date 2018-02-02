@@ -2,23 +2,25 @@ clear
 close all
 
 %%
-yearIndex = 1;
+yearIndex = 3;
 dataIndex = 0;
 K_opt = {};
+NK = 5;
+zK = linspace(1, 8, NK);
+timePeriod = [0, 0.4];
 
 for i = 1: length(yearIndex)
     for j = 1:length(dataIndex)
-        K_opt{i,j} = testheat(yearIndex(i), dataIndex(j));
+        K_opt{i,j} = testheat(yearIndex(i), dataIndex(j), zK, timePeriod);
     end
 end
 
 %%
 K_mat = cell2mat(K_opt) ;
-z = linspace(1, 8, 5);
 
 figure
 for i = 1: length(dataIndex)
-    plot(z , K_mat(:, i), 'linewidth', 1.5)
+    plot(zK , K_mat(:, i), 'linewidth', 1.5)
     hold on
 end
 xlim([1, 8])
@@ -34,9 +36,9 @@ optK = z_1_8_weighted.K_mat(:, yearIndex);
 averK = mean(K_mat,2);
 stdK = std(K_mat, 0, 2);
 figure
-errorbar(z, averK, stdK, 'linewidth', 1.5);
+errorbar(zK, averK, stdK, 'linewidth', 1.5);
 hold on 
-plot(z, optK, 'linewidth', 1.5)
+plot(zK, optK, 'linewidth', 1.5)
 xlim([1, 8])
 ylim([0, 3.5])
 xlabel('z')

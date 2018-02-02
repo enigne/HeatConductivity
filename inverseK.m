@@ -20,21 +20,26 @@
 %   'Nz'        - number of grid for the computation;
 %   'rho'       - density of the ice;
 %   'noise'     - artificial noise matrix.
+%   'timePeriod'- only part of t_data are taken into account. [0,1] indicates
+%                 the full data piece;
 % The return values:
 %   'K_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-31
+% Date: 2018-02-02
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise)
+function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod)
     % Check the input variables
-    if nargin < 8
-        noise = [];
-        if nargin < 7
-            w = 1;
-            if nargin < 6
-                rho = 900;
+    if nargin < 9
+        timePeriod = [0, 1];
+        if nargin < 8
+            noise = [];
+            if nargin < 7
+                w = 1;
+                if nargin < 6
+                    rho = 900;
+                end
             end
         end
     end
@@ -44,7 +49,7 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise)
     interpOption = 'linear';
     
     % Load Measurements
-    [t_data, z_data, T_data] = loadData(data, dataIndex);
+    [t_data, z_data, T_data] = loadData(data, dataIndex, timePeriod);
     
     % Add noise 
     if ~isempty(noise)
