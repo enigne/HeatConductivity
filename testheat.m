@@ -28,7 +28,7 @@ function K_opt = testheat(yearIndex, dataIndex, perturbT)
     %% Initialize
     Nk = 5;
     zK = linspace(1, 8, Nk)';
-    K0 = 1e5*ones(Nk, 1);
+    K0 = 1*ones(Nk, 1);
 
     % cut the data according to the range of K
     [T_data, ~, indCutZ] = cutData(T_data, z_data, [zK(1),zK(end)]);

@@ -30,9 +30,9 @@
 function [t_data, z_data, T_data, indt] = loadData(data, dataIndex, timePeriod, timeScaling)
     % optional input
     if nargin < 4
-        timeScaling = 1;
+        timeScaling = 24*3600;
         if nargin < 3
-            timePeriod = [0, 0.6];
+            timePeriod = [0, 1];
             if nargin < 2
                 dataIndex = 0;
             end

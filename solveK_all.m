@@ -2,7 +2,7 @@ clear
 close all
 
 %%
-yearIndex = 4;
+yearIndex = 1;
 dataIndex = 0;
 K_opt = {};
 
@@ -13,7 +13,7 @@ for i = 1: length(yearIndex)
 end
 
 %%
-K_mat = cell2mat(K_opt) ./ 24./3600;
+K_mat = cell2mat(K_opt) ;
 z = linspace(1, 8, 5);
 
 figure

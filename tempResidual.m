@@ -13,7 +13,7 @@
 %                     between the model and the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-26
+% Date: 2018-02-02
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function F = tempResidual(K, HeatSolver, t, z, T_data, t_data, z_data, w, heatParam)
@@ -28,5 +28,6 @@ function F = tempResidual(K, HeatSolver, t, z, T_data, t_data, z_data, w, heatPa
     mask = (((T_data<-2) & (~isnan(err))));
     
     compareErr = err(mask);
-    F = compareErr(:);
+    n = length(compareErr);
+    F = 1./sqrt(n) .*compareErr(:);
 end
