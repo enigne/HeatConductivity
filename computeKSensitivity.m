@@ -53,6 +53,6 @@ function [A, z, t] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K0,
     % Set the area with mask to 0
     A(mask, :) = 0;
     
-    % Scale the unit in time from days to seconds
-    A = A .* (24*3600);
+%     % Scale the unit in time from days to seconds
+%     A = A .* (24*3600);
 end

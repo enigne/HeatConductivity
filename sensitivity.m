@@ -13,7 +13,7 @@ load('invK_realRho.mat');
 data = LF{yearIndex}.T;
 rho = rhoData{yearIndex};
 % K0 = z_05_8_ondata.K_opt{yearIndex};
-K0 = z_1_8_weighted.K_opt{yearIndex};
+K0 = z_1_8_weighted.K_opt{yearIndex}./24./3600;
 
 % Initial Heat conductivity
 Nk = length(K0);
