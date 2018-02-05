@@ -22,7 +22,7 @@ for i = 1: length(yearIndex)
     %
     dZfine = 5;
     [dTdzData, ~, ~, ~] = computeDTDzFromData(z_data, t_data, T_data, dZfine, [], interpOption);
-    t_data = (t_data-t_data(1)+1)/24/3600;
+    t_data = scaleTimeUnit(t_data);
     [X_data, Y_data] = meshgrid(t_data, z_data);
 
     %% Plot
