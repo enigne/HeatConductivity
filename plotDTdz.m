@@ -34,7 +34,7 @@ for i = 1: length(yearIndex)
     colormap(jet)
     axis tight
     xlabel('t (days)');
-    ylabel('z(m)');
-    title(['temperature gradient 201', num2str(yearIndex(i)+1)])
+    ylabel('z (m)');
+    title(['Temperature gradient 201', num2str(yearIndex(i)+1)])
     caxis([-4, 4])
 end
