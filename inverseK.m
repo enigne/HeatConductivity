@@ -73,13 +73,13 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod
     heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
 
     %% Optimisation
-%     T_data(2:end-1,2:end-1)= T_data(2:end-1,2:end-1) + 0.1;
-
     % Create the objective function
     objF = @(K) tempResidual(K, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
     % Set options
-    options = optimoptions('lsqnonlin','Display','iter', 'algorithm', 'levenberg-marquardt', ...
+    options = optimoptions('lsqnonlin','Display','iter', ...
         'typicalX', K0,'TolFun', 1e-10, 'TolX', 1e-10);
+    %'algorithm', 'levenberg-marquardt', 
+    
     % Solve
-    [K_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, K0, [], [],options);
+    [K_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, K0, zeros(size(K0)), 3*ones(size(K0)), options);
 end
