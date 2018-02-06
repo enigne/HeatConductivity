@@ -64,9 +64,13 @@ function [K_opt, t_data] = testheat(yearIndex, dataIndex, zK, timePeriod, pertur
     % Take weights into account
     if ((yearIndex == 1) || (yearIndex == 3))
         T_S = dataS{yearIndex}.T_S(indCutZ, indt);
+    elseif (yearIndex == 2)
+        T_S = data.T_sd(indCutZ, indt);
+        T_S = T_S.^2;
     else 
         T_S = ones(size(T_data));
     end
+    
     w = 1./ (T_S.^(0.5));
 
     z_data = z_data(indCutZ);
