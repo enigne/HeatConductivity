@@ -24,7 +24,7 @@ function t = scaleTimeUnit(t_old, oldUnit, newUnit)
         case 'seconds'
             t = t_conv;
         otherwise
-            t = datevec(t_conv);
+            t = datevec(t_conv/24/3600);
     end
     
 end

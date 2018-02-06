@@ -16,7 +16,7 @@
 % Date: 2018-02-02
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function K_opt = testheat(yearIndex, dataIndex, zK, timePeriod, perturbT)
+function [K_opt, t_data] = testheat(yearIndex, dataIndex, zK, timePeriod, perturbT)
     %% Check the input
     if nargin < 5
         % perturbation test on the data
@@ -86,6 +86,9 @@ function K_opt = testheat(yearIndex, dataIndex, zK, timePeriod, perturbT)
     [T_sol] = solveHeat(t, z, K_opt, heatParam);
 
     %% Visualize measurement
+    % Scale t_data to days
+%     t_data = scaleTimeUnit(t_data);
+
     % mesh for measurment
     [X_data, Y_data] = meshgrid(t_data, z_data);
 
@@ -104,6 +107,9 @@ function K_opt = testheat(yearIndex, dataIndex, zK, timePeriod, perturbT)
     grid off
     
 
+    % Scale t to days
+%     t = scaleTimeUnit(t);
+    % mesh for numerical ex
     [X, Y] = meshgrid(t, z);
     subplot(2,1,2)
     surf(X,Y,T_sol)
