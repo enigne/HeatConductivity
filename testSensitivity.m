@@ -59,15 +59,17 @@ function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = te
     dK = 1e-6;
     [A, ~, ~, error] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K_opt, dK, rho, C, mask, interpOption);
 
+    %%
+    Nt = (numel(T_data)-numel(mask))/ length(z_data);
     %% compute weight
     w = 1./ ((T_S));
     W = w(:);
     W(mask) = 0;
     weightedA = A' * spvardiag(W);
-    weightedB = weightedA * A;
+    weightedB = (weightedA * A);
     weightedAK = weightedB \ weightedA;
 
-    weightedSE = sqrt( diag( inv(weightedB) ) );
+    weightedSE = sqrt( diag( inv(weightedB./Nt) ) );
 
     %% Plot Weighted AK and A
     figure
@@ -96,7 +98,7 @@ function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = te
         if i == 1
             caxis([0, 15]);
         else
-            caxis([-8e-4, 8e-4]);
+            caxis([-1e-3, 1e-3]);
     %         caxis([-1e-5, 1e-5]);
         end
         grid off

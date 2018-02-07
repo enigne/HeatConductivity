@@ -3,7 +3,7 @@ close all;
 %% Initialize
 % Settings
 interpOption = 'linear';
-yearIndex = 4;
+yearIndex = 1;
 
 %% Load data
 load('LF_4_aver.mat');
@@ -51,7 +51,7 @@ T_S = T_S(: , noNanInd);
 
 % mask for T >= -2 put 0
 mask = find( T_data >= -2);
-mask = [];
+
 % Physical parameters
 C = 152.5 + 7.122 * (273.15 - 10);
 
@@ -80,21 +80,14 @@ weightedSE = sqrt( diag( inv(weightedB) ) );
 %%
 % Nt = length(t_data);
 % newB = zeros(Nk);
-% V = zeros(Nz);
-% 
-% for i = 1 : Nt
-%     V = V + error((i-1)*Nz+1: i*Nz)*error((i-1)*Nz+1: i*Nz)';
-% end
-% V =  1./ (diag(V)/(Nt-Nk)) ;
-% V(1) = 0;
-% V(end) = 0;
+% V = 1./ ( sum(T_S, 2)*8/(Nt-Nk)) ;
 % 
 % for i = 1 : Nt
 %     tempA = A((i-1)*Nz+1: i*Nz,:);
 %     newB = newB + tempA' * spvardiag(V) * tempA;
 % end
 % 
-% sqrt(diag(inv(newB)))
+% sqrt(diag(inv(newB./Nt)))
 
 %% Plot AK and A
 figure
