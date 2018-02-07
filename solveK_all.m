@@ -2,7 +2,7 @@ clear
 close all
 
 %%
-yearIndex = [1:4];
+yearIndex = [1];
 dataIndex = 0;
 K_opt = {};
 NK = 5;

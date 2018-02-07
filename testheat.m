@@ -59,7 +59,7 @@ function [K_opt, t_data] = testheat(yearIndex, dataIndex, zK, timePeriod, pertur
     K0 = 1*ones(Nk, 1);
 
     % cut the data according to the range of K
-    [T_data, ~, indCutZ] = cutData(T_data, z_data, [zK(1),zK(end)]);
+    [T_data, z_data, indCutZ] = cutData(T_data, z_data, [zK(1),zK(end)]);
    
     % Take weights into account
     if ((yearIndex == 1) || (yearIndex == 3))
@@ -72,8 +72,6 @@ function [K_opt, t_data] = testheat(yearIndex, dataIndex, zK, timePeriod, pertur
     end
     
     w = 1./ (T_S.^(0.5));
-
-    z_data = z_data(indCutZ);
     
     %% Optimize for the averaged value
     Nz = length(z_data);
