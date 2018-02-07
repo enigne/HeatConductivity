@@ -29,6 +29,9 @@ load('summary.mat');
 % Take weights into account
 if ((yearIndex == 1) || (yearIndex == 3))
     T_S = dataS{yearIndex}.T_S ;
+elseif (yearIndex == 2)
+    T_S = data.T_sd;
+    T_S = T_S.^2;
 else
     T_S = ones(size(T_data));
 end
@@ -48,7 +51,7 @@ T_S = T_S(: , noNanInd);
 
 % mask for T >= -2 put 0
 mask = find( T_data >= -2);
-
+mask = [];
 % Physical parameters
 C = 152.5 + 7.122 * (273.15 - 10);
 
@@ -198,9 +201,23 @@ ylabel('A_zR');
 legend(zALeg);
 
 
-%% 
+%% Plot DTdz
+[dTdzData, ~, ~, t] = computeDTDzFromData(z_data, t_data, T_data, dZfine, mask, interpOption);
 
 figure
+subplot(2, 1, 1)
+surf(X_data, Y_data, dTdzData);
+view(2)
+shading interp;
+colorbar
+colormap(jet)
+axis tight
+xlabel('t');
+ylabel('z');
+title('temperature gradient')
+caxis([-4, 4])
+
+subplot(2, 1, 2)
 surf(X_data, Y_data, dTdz);
 view(2)
 shading interp;
@@ -209,6 +226,7 @@ colormap(jet)
 axis tight
 xlabel('t');
 ylabel('z');
+title('Numerical T gradient')
 caxis([-4, 4])
 % 
 % %% Compute rho
