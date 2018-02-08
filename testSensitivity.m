@@ -106,14 +106,27 @@ function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = te
 
     %% Plot Az and Az*R
 
-%     zALeg = {};
-%     for i = 1: Nk
-%         zALeg{i} = ['K', num2str(i)];
-%     end
+    zALeg = {};
+    for i = 1: Nk
+        zALeg{i} = ['K', num2str(i)];
+    end
     
     R = tril(ones(Nz));
 
     weightedAz = weightedAK * matDTDz;
     weightedD = weightedAz * R;
-
+    
+    figure
+    subplot(2,1,1)
+    plot(z_data, weightedAz');
+    xlim([min(z_data), max(z_data)])
+    % legend(zALeg);
+    xlabel('z');
+    ylabel('A_z');
+    subplot(2,1,2)
+    plot(z_data, weightedD');
+    xlim([min(z_data), max(z_data)])
+    xlabel('z');
+    ylabel('A_zR');
+    legend(zALeg);
 
