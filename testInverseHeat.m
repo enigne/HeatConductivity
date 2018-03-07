@@ -9,16 +9,16 @@ clear
 close all
 
 %%
-yearIndex = [1];
+yearIndex = [4];
 dataIndex = 0;
 K_opt = {};
-NK = 5;
+NK = 15;
 zK = linspace(1, 8, NK);
-timePeriods{1} = {[0, 1/3]}; % 2012
-% timePeriods{1} = {[0, 1/3], [1/3, 5/12], [5/12, 1]}; % 2012
-timePeriods{2} = {[0, 1/2], [1/2, 2.95/4]}; % 2013
-timePeriods{3} = {[0, 5/36], [5/36, 13/36], [13/36,1]}; % 2014
-timePeriods{4} = {[0, 2/9]}; % 2015
+
+timePeriods{1} = {[0, 3.8/12], [4/12, 4.8/12], [5/12, 6.2/12]}; % 2012
+timePeriods{2} = {[0, 1/2], [2.35/4, 2.95/4]}; % 2013
+timePeriods{3} = {[0, 5/36], [5/36, 9/36], [18/36,1]}; % 2014
+timePeriods{4} = {[0, 2/9], [3/9, 1]}; % 2015
 
 
 for i = 1: length(yearIndex)

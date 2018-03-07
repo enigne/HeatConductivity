@@ -14,7 +14,7 @@
 
 function y_new = AdamsMoulton(y_old, dt, D, BC, tInd, zInd)
     n = size(D, 1);
-
+    % Default values
     if nargin < 6
         zInd = [1, n];
     end
@@ -23,6 +23,7 @@ function y_new = AdamsMoulton(y_old, dt, D, BC, tInd, zInd)
     rhs = (I + dt/2*D) *y_old;
     Q = I - dt/2*D;
         
+    % normal lower and upper boundaries
     if nargin > 3
         rhs(1) = BC.Up(tInd);
         rhs(n) = BC.Down(tInd);
@@ -31,5 +32,12 @@ function y_new = AdamsMoulton(y_old, dt, D, BC, tInd, zInd)
         Q(1, 1) = 1;
         Q(n, n) = 1;
     end
+    
+    % fill-in all the mask area with Dirichlet B.C.
+    dBCInd = BC.mask(:, tInd);
+    rhs(dBCInd) = BC.data(dBCInd,tInd);
+    Q(dBCInd, : ) = 0;
+    Q(dBCInd, dBCInd) = speye(sum(dBCInd));
+    
     y_new = Q \ rhs;
 end

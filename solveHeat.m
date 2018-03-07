@@ -37,6 +37,7 @@ function [T]=solveHeat(t, z, K, heatParam)
     dx = abs(z(2)-z(1));
     Nx = length(z);
     T = zeros(Nx,nt);
+    T(:,1) = T_old;
     
     D1m = Dm(Nx, dx, 0);
     D1p = Dp(Nx, dx, 0);
@@ -44,7 +45,7 @@ function [T]=solveHeat(t, z, K, heatParam)
     D = 1./rho./C.*(D1p*Kc*D1m);
 
     %% Time iterations
-    for i = 1: nt    
+    for i = 2: nt    
         % Trapzoidal Rule
         T_new = AdamsMoulton(T_old, dt, D, Tbc, i);
         
