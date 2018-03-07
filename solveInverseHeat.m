@@ -13,10 +13,10 @@
 %   'K_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-02-02
+% Date: 2018-03-07
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [K_opt, t_data] = testheat(yearIndex, dataIndex, zK, timePeriod, perturbT)
+function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod, perturbT)
     %% Check the input
     if nargin < 5
         % perturbation test on the data
