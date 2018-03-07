@@ -24,8 +24,7 @@ function [T]=solveHeat(t, z, K, heatParam)
     dt = heatParam.dt;
     C = heatParam.C;
     T0 = heatParam.T0;
-    TbcUp = heatParam.TbcUp;
-    TbcDown = heatParam.TbcDown;
+    Tbc = heatParam.Tbc;
     
     % Get Kp on each z
     Kp = heatConductivity(heatParam.zK, K, z);
@@ -47,11 +46,11 @@ function [T]=solveHeat(t, z, K, heatParam)
     %% Time iterations
     for i = 1: nt    
         % Trapzoidal Rule
-        T_new = AdamsMoulton(T_old, dt, D, [TbcUp(i),TbcDown(i)]);
+        T_new = AdamsMoulton(T_old, dt, D, Tbc, i);
         
         % Dirichlet B.C.
-        T_new(1) = TbcUp(i);
-        T_new(end) = TbcDown(i);
+        T_new(1) = Tbc.Up(i);
+        T_new(end) = Tbc.Down(i);
         
         % Save and update
         T(:,i) = T_new;

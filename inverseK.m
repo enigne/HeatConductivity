@@ -70,7 +70,7 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod
     [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
 
     % Set Parameters for solving
-    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
+    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc, zK);
 
     %% Optimisation
     % Create the objective function

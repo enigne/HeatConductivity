@@ -17,7 +17,7 @@
 %   'dt'            - step size of the time discretization;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-22
+% Date: 2018-03-07
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption, zRange)
@@ -45,4 +45,9 @@ function [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, inter
     % Interpolate Boundary conditions
     Tbc.Up = interp1(t_data, T_data(1,:), t, interpOption);
     Tbc.Down = interp1(t_data, T_data(end,:), t, interpOption);
+
+    %
+    Tbc.data = interp2(t_data, z_data, T_data, t, z, interpOption);
+
+    Tbc.mask = (Tbc.data > -2);
 end

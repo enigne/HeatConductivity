@@ -83,7 +83,7 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
     [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
 
     % Set Parameters for solving
-    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
+    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc, zK);
 
     [T_sol] = solveHeat(t, z, K_opt, heatParam);
 
