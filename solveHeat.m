@@ -28,7 +28,7 @@ function [T]=solveHeat(t, z, K, heatParam)
     TbcDown = heatParam.TbcDown;
     
     % Get Kp on each z
-    Kp = HeatConductivity(heatParam.zK, K, z);
+    Kp = heatConductivity(heatParam.zK, K, z);
     % Get rho on each z
     rho = density(heatParam.rho, z);
     
