@@ -11,6 +11,6 @@
 % Date: 2018-01-03
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function K =HeatConductivity(zC, KC, z)
+function K = heatConductivity(zC, KC, z)
     K = interp1(zC, KC, z,'linear');
 end
