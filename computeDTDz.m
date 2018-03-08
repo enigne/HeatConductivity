@@ -28,7 +28,7 @@ function [dTdz, matDTDz, z, t] = computeDTDz(z_data, t_data, T_data, dZfine, zK,
     [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
 
     % Set Parameters for solving
-    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc.Up, Tbc.Down, zK);
+    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc, zK);
 
     %% Compute dT/dz
     % Solve heat equation on a finear mesh
