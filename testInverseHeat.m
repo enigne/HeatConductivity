@@ -8,11 +8,11 @@
 clear
 close all
 
-%%
-yearIndex = [4];
+%% Solve for K
+yearIndex = [1:4];
 dataIndex = 0;
 K_opt = {};
-NK = 15;
+NK = 10;
 zK = linspace(1, 8, NK);
 
 timePeriods{1} = {[0, 3.8/12], [4/12, 4.8/12], [5/12, 6.2/12]}; % 2012
@@ -31,13 +31,11 @@ for i = 1: length(yearIndex)
     end
 end
 
-%%
-figure
+%% Plot Optimal K
+figure('pos',[0 0 900 600])
 for i = 1: length(yearIndex)
     % plot
     legendList = {};
-%     figure
-
     n = 1;
     subplot(2, 2, i)
     for j = 1: length(timePeriods{yearIndex(i)})
@@ -51,8 +49,12 @@ for i = 1: length(yearIndex)
         end
     end
     xlim([1, 8])
-    ylim([0, 3.5])
+    ylim([0, 2.5])
     xlabel('z')
     ylabel('K')
     legend(legendList)
 end
+
+%% Save data
+dataFileName = ['invK', num2str(NK), '_maskedBC.mat'];
+save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
