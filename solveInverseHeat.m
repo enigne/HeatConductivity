@@ -90,6 +90,7 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
     %% Visualize measurement
     % Scale t_data to days
 %     t_data = scaleTimeUnit(t_data);
+    T_sol_ondata = project2D(T_sol, t, z, t_data, z_data);
 
     % mesh for measurment
     [X_data, Y_data] = meshgrid(t_data, z_data);
@@ -112,18 +113,19 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
     % Scale t to days
 %     t = scaleTimeUnit(t);
     % mesh for numerical ex
-    [X, Y] = meshgrid(t, z);
+%     [X, Y] = meshgrid(t, z);
     subplot(2,1,2)
-    surf(X,Y,T_sol)
+%     surf(X,Y,T_sol)
+    surf(X_data, Y_data, abs(T_data-T_sol_ondata))
     view(2)
     shading interp;
     colorbar
     colormap(jet)
     axis tight
-    caxis([-20,-2]);
+    caxis([0,0.1]);
     xlabel('t')
     ylabel('z')
-    title(['Optimal solution at 201', num2str(yearIndex+1)]);
+    title(['Errors at 201', num2str(yearIndex+1)]);
     grid off
 
 end
