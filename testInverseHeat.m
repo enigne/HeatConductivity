@@ -9,10 +9,10 @@ clear
 close all
 
 %% Solve for K
-yearIndex = [1:4];
+yearIndex = [1];
 dataIndex = 0;
 K_opt = {};
-NK = 15;
+NK = 5;
 zK = linspace(1, 8, NK);
 
 timePeriods{1} = {[0, 20]./181, [20, 40]./181, [40, 59]./181, [60, 73]./181, [76, 90]./181}; % 2012

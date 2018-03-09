@@ -16,7 +16,7 @@
 %   'T'             - the solution in time*space;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-01-08
+% Date: 2018-03-09
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [T]=solveHeat(t, z, K, heatParam)
@@ -52,6 +52,10 @@ function [T]=solveHeat(t, z, K, heatParam)
         % Dirichlet B.C.
         T_new(1) = Tbc.Up(i);
         T_new(end) = Tbc.Down(i);
+        
+        % More Dirichlet for the masked area
+        dBCInd = Tbc.mask(:, i);
+        T_new(dBCInd) = Tbc.data(dBCInd, i);
         
         % Save and update
         T(:,i) = T_new;
