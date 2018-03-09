@@ -75,7 +75,7 @@ function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = so
     figure
     [X_data, Y_data] = meshgrid(t_data, z_data);
 
-    for i = 1 : 6
+    for i = 1 : Nk+1
         if i > 1
     %         p_data = reshape(weightedA(i-1,:), size(X_data));
             p_data = reshape(weightedAK(i-1,:), size(X_data));
@@ -87,7 +87,7 @@ function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = so
 
         p_data(mask) = 0;
 
-        subplot(3, 2, i)
+        subplot(floor((Nk+1)/2), 2, i)
         surf(X_data, Y_data, p_data);
         view(2)
         shading interp;
