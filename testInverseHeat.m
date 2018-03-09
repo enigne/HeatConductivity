@@ -56,5 +56,5 @@ for i = 1: length(yearIndex)
 end
 
 %% Save data
-% dataFileName = ['invK', num2str(NK), '_maskedBC.mat'];
-% save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+dataFileName = ['invK', num2str(NK), '_maskedBC.mat'];
+save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
