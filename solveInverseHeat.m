@@ -16,7 +16,7 @@
 % Date: 2018-03-07
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod, perturbT)
+function [K_opt_out, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod, perturbT)
     %% Check the input
     if nargin < 5
         % perturbation test on the data
@@ -26,7 +26,7 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
             timePeriod = [0, 1];
             if nargin < 3
                 % solve K on zK only
-                zK = linspace(1, 8, 5)';
+                zKmasked = linspace(1, 8, 5)';
                 if nargin < 2
                     % use the averaged data
                     dataIndex = 0;
@@ -54,12 +54,13 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
     C = 152.5 + 7.122 * (273.15 - 10);
 
     %% Initialize
-    zK = zK(:);
-    Nk = length(zK);
-    K0 = 1*ones(Nk, 1);
+    [umaskedZ, ~] = findUnmaskedZ(T_data, z_data);
+    
+    % Cut zK and K0 to the size according to umaskedZ from z_data
+    [zKmasked, K0, zKMflag] = initK(zK, umaskedZ);
 
     % cut the data according to the range of K
-    [T_data, z_data, indCutZ] = cutData(T_data, z_data, [zK(1),zK(end)]);
+    [T_data, z_data, indCutZ] = cutData(T_data, z_data, [zKmasked(1),zKmasked(end)]);
    
     % Take weights into account
     if ((yearIndex == 1) || (yearIndex == 3))
@@ -75,7 +76,7 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
     
     %% Optimize for the averaged value
     Nz = length(z_data);
-    K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, perturbT, timePeriod);
+    K_opt = inverseK(data, dataIndex, zKmasked, K0, Nz, rho, w, perturbT, timePeriod);
 
     %% Solve Heat equation
 
@@ -83,10 +84,15 @@ function [K_opt, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod
     [Tbc, T0, z, t, dz, Nt, dt] = setIBCs(z_data, t_data, Nz, T_data, interpOption);
 
     % Set Parameters for solving
-    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc, zK);
+    heatParam = setHeatParam(dt, Nt, dz, Nz, rho, C, T0, Tbc, zKmasked);
 
     [T_sol] = solveHeat(t, z, K_opt, heatParam);
 
+    %% Create output vector
+    K_opt_out = [zK(:), zK(:)];
+    K_opt_out(zKMflag, 2) = K_opt;
+	K_opt_out(~zKMflag, 2) = nan;
+    
     %% Visualize measurement
     % Scale t_data to days
 %     t_data = scaleTimeUnit(t_data);

@@ -9,10 +9,10 @@ clear
 close all
 
 %% Solve for K
-yearIndex = [1];
+yearIndex = [1:4];
 dataIndex = 0;
 K_opt = {};
-NK = 5;
+NK = 15;
 zK = linspace(1, 8, NK);
 
 timePeriods{1} = {[0, 20]./181, [20, 40]./181, [40, 59]./181, [60, 73]./181, [76, 90]./181}; % 2012
@@ -39,8 +39,8 @@ for i = 1: length(yearIndex)
     n = 1;
     subplot(2, 2, i)
     for j = 1: length(timePeriods{yearIndex(i)})
-        for l = 1:length(dataIndex)
-            plot(zK , K_opt{i,j, l}, 'linewidth', 1.5);
+        for l = 1:length(dataIndex)         
+            plot(K_opt{i,j, l}(:, 1) , K_opt{i,j, l}(:,2), 'linewidth', 1.5);
             hold on;
             t_conv = scaleTimeUnit(t_data_opt{i,j,l},'','');
             daytemp = datestr(t_conv,'yyyy-mm-dd');
