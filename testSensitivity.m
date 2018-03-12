@@ -10,7 +10,7 @@ clear
 
 %% Initialize
 % Predefined parameters
-NK = 15;
+NK = 8;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
