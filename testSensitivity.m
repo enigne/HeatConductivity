@@ -1,7 +1,7 @@
 % Script for sensitivity analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-08
+% Date: 2018-03-09
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
@@ -10,36 +10,48 @@ clear
 
 %% Initialize
 % Predefined parameters
-Nk = 15;
+NK = 15;
 
 % load Opt K according to Nk
-optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
+% optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
+optKFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
 load(optKFileName);
-yearIndex = [1];
+yearIndex = [1:4];
 
-% define zK
-if ~exist('zK')
-    zK = linspace(1, 8, Nk)';
-end
-%% 
+
+%% Test sensitivity
 for i = 1: length(yearIndex)
     for j = 1: length(timePeriods{yearIndex(i)})
-      K = K_opt{i,j};
-      t = t_data_opt{i,j};
-      
-       [weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},dTdz{i,j}, T_data{i,j}, mask{i,j}] = solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j});
-       
+        % get specific data
+        zK = K_opt{i,j}(:,1);
+        K = K_opt{i,j}(:,2);
+        t = t_data_opt{i,j};
+        
+        % remove nan in K and zK
+        nanFlag = isnan(K);
+        K = K(~nanFlag);
+        zK = zK(~nanFlag);
+        
+        % solve for sensitivity
+        [weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},dTdz{i,j}, T_data{i,j}, mask{i,j}] = ...
+            solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j});        
     end
 end
 
-%%
-figure
+%% Plot
+figure('pos',[0 0 900 600])
+
 for i = 1: length(yearIndex)
     n = 1;
     legendList= {};
     subplot(2, 2, i)
     for j = 1: length(timePeriods{yearIndex(i)})
-            errorbar(zK, K_opt{i,j}, weightedSE{i,j}, 'linewidth', 1.5);
+            zK = K_opt{i,j}(:,1);
+            K = K_opt{i,j}(:,2);
+        nanFlag = isnan(K);
+        K = K(~nanFlag);
+        zK = zK(~nanFlag);
+            errorbar(zK, K, weightedSE{i,j}, 'linewidth', 1.5);
             hold on;
             t_conv = scaleTimeUnit(t_data_opt{i,j},'','');
             daytemp = datestr(t_conv,'yyyy-mm-dd');
@@ -47,11 +59,14 @@ for i = 1: length(yearIndex)
             n = n+1;
     end
     xlim([1, 8])
-    ylim([0, 2])
+    ylim([0, 2.5])
     xlabel('z')
     ylabel('K')
     legend(legendList)
 end
+%% Save data
+dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
+save(dataFileName, 'weightedAz', 'weightedB', 'weightedD', 'weightedSE','K_opt','t_data_opt', 'timePeriods', 'yearIndex');
 
 
 

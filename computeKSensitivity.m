@@ -58,6 +58,4 @@ function [A, z, t, error] = computeKSensitivity(z_data, t_data, T_data, dZfine, 
     T0_sol_proj = project2D(T0_sol, t, z, t_data, z_data);
     error = T_data - T0_sol_proj;
     error = error(:);
-%     % Scale the unit in time from days to seconds
-%     A = A .* (24*3600);
 end
