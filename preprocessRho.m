@@ -1,3 +1,9 @@
+% Script for preprocessiong density data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-03-09
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear
 close all
 
@@ -51,3 +57,6 @@ end
 
 legend({'$\rho\in P_0$', '$\rho\in P_1$'}, 'Interpreter', 'latex')
 
+%%
+fileName = 'densityData.mat';
+save(fileName, 'rhoData');

@@ -12,11 +12,11 @@ close all
 yearIndex = [1:4];
 dataIndex = 0;
 K_opt = {};
-NK = 8;
+NK = 5;
 zK = linspace(1, 8, NK);
 
-timePeriods{1} = {[0, 59]./181, [60, 73]./181, [77, 95]./181}; % 2012
-timePeriods{2} = {[0, 40]./80, [47, 59]./80}; % 2013
+timePeriods{1} = {[0, 59]./181}; % 2012
+timePeriods{2} = {[0, 40]./80}; % 2013
 timePeriods{3} = {[0, 78]./360, [160, 360]./360}; % 2014
 timePeriods{4} = {[1, 84]./360}; % 2015
 
@@ -62,5 +62,4 @@ end
 
 %% Save data
 dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-% % dataFileName = ['invK', num2str(NK), '_maskedBC.mat'];
 save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');

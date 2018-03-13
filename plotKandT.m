@@ -10,13 +10,15 @@ close all
 %% options
 plotAz = 0;
 saveAz = 0;
-plotOptK = 0;
+
+plotOptK = 1;
+
 plotAk = 0;
 saveAk = 0;
 
 %% Load data
 % Predefined parameters
-NK = 8;
+NK = 5;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
@@ -26,9 +28,9 @@ load(optKFileName);
 load('LF_4_aver.mat')
 
 %% Generate K field from K_opt
-z_offset = [0, -0.7, -1.6, -2.6];
+z_offset = [3.34, 2.22, 0.9, 0];
 n = 1;
-z_cord = [-3:0.1:10]';
+z_cord = [0:0.1:12]';
 
 for i = 1: length(yearIndex)
     for j = 1: length(timePeriods{yearIndex(i)})
@@ -73,7 +75,7 @@ if plotOptK
     xlabel('t (days)')
     ylabel('z')
     grid off
-    ylim([-2,8]);
+    ylim([1,11.5]);
     title('Optimal K')
     caxis([0, 2]);
     
@@ -101,7 +103,7 @@ if plotOptK
     xlabel('t (days)')
     ylabel('z')
     xlim([0,max(t_cord)]);
-    ylim([-2,8]);
+    ylim([1,11.5]);
     title('Temperature measurements')
 end
 %% Plot Az and Az*R
