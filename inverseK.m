@@ -74,7 +74,7 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod
 
     %% Optimisation
     % Create the objective function
-    objF = @(K) tempResidual(K, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
+    objF = @(x) tempResidual(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
     % Set options
     options = optimoptions('lsqnonlin','Display','iter', ...
         'typicalX', K0,'TolFun', 1e-10, 'TolX', 1e-10, 'MaxFunEvals', 10000);

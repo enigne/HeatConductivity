@@ -19,17 +19,25 @@
 % Date: 2018-03-09
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [T]=solveHeat(t, z, K, heatParam)
+function [T]=solveHeat(t, z, x, heatParam)
     %% Set up 
     dt = heatParam.dt;
     C = heatParam.C;
     T0 = heatParam.T0;
     Tbc = heatParam.Tbc;
     
+    % split K and rho from x
+    Nk = length(heatParam.zK);
+    if length(x) == Nk
+        rho = heatParam.rho;
+        K = x;
+    end
+    
     % Get Kp on each z
     Kp = heatConductivity(heatParam.zK, K, z);
+    
     % Get rho on each z
-    rho = density(heatParam.rho, z);
+    rhop = density(rho, z);
     
     %% Initialization
     T_old = T0;
@@ -42,7 +50,7 @@ function [T]=solveHeat(t, z, K, heatParam)
     D1m = Dm(Nx, dx, 0);
     D1p = Dp(Nx, dx, 0);
     Kc = spvardiag(Kp);
-    D = 1./rho./C.*(D1p*Kc*D1m);
+    D = 1./rhop./C.*(D1p*Kc*D1m);
 
     %% Time iterations
     for i = 2: nt    

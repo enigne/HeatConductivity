@@ -16,11 +16,11 @@
 % Date: 2018-02-02
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function F = tempResidual(K, HeatSolver, t, z, T_data, t_data, z_data, w, heatParam)
+function F = tempResidual(x, HeatSolver, t, z, T_data, t_data, z_data, w, heatParam)
     % Project data to the computational domain
 %     f_data = project2D(T_data, t_data, z_data, t, z);
 
-    T_sol = HeatSolver(t, z, K, heatParam);
+    T_sol = HeatSolver(t, z, x, heatParam);
    
     T_sol_int = project2D(T_sol, t, z, t_data, z_data);
     err = w .* (T_sol_int - T_data);   

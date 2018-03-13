@@ -9,7 +9,7 @@ clear
 close all
 
 %% Solve for K
-yearIndex = [1:4];
+yearIndex = [1];
 dataIndex = 0;
 K_opt = {};
 NK = 5;
@@ -61,5 +61,5 @@ for i = 1: length(yearIndex)
 end
 
 %% Save data
-dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+% dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
+% save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
