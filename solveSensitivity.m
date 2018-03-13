@@ -1,4 +1,4 @@
-function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = solveSensitivity(yearIndex, K_opt, zK, timePeriod)
+function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask, t_data, z_data] = solveSensitivity(yearIndex, K_opt, zK, timePeriod)
     %% Initialize
     % Settings
     interpOption = 'linear';
