@@ -45,19 +45,21 @@ function [K_opt_out, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePe
         error('Please check the original data file LF_4_aver.mat');
     end
     
+    % Load density data
     try
         load('densityData.mat');
     catch
         error('densityData.mat not found. Try to run preprocessRho.m first.');
     end
     
+    % Load average and mean
     try
         load('summary.mat');
     catch
         error('summary.mat not found. Try to run averageAndVariance.m first.');
     end
 
-    % Assign data
+    %% Assign data
     data = LF{yearIndex}.T;
     rho = rhoData{yearIndex};
 

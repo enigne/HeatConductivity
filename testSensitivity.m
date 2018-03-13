@@ -10,12 +10,16 @@ clear
 
 %% Initialize
 % Predefined parameters
-NK = 8;
+NK = 5;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
 optKFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-load(optKFileName);
+try
+    load(optKFileName);
+catch
+    error([optKFileName, ' not found. Try to run testInverseHeat.m first.']);
+end
 yearIndex = [1:4];
 
 
@@ -70,6 +74,3 @@ end
 dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
 save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE','K_opt','t_data_opt', ...
     't_cell', 'z_cell', 'timePeriods', 'yearIndex');
-
-
-

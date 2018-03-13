@@ -23,7 +23,11 @@ NK = 5;
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
 optKFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
-load(optKFileName);
+try
+    load(optKFileName);
+catch
+    error([optKFileName, ' not found. Try to run testSensitivity.m first.']);
+end
 % load measurements
 load('LF_4_aver.mat')
 

@@ -4,13 +4,27 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data
     interpOption = 'linear';
 
     %% Load data
-    load('LF_4_aver.mat');
-    % Load density data
-    load('densityData.mat');
-    % Load average and mean
-    load('summary.mat');
+    try
+        load('LF_4_aver.mat');
+    catch
+        error('Please check the original data file LF_4_aver.mat');
+    end
     
-    % Assign data
+    % Load density data
+    try
+        load('densityData.mat');
+    catch
+        error('densityData.mat not found. Try to run preprocessRho.m first.');
+    end
+    
+    % Load average and mean
+    try
+        load('summary.mat');
+    catch
+        error('summary.mat not found. Try to run averageAndVariance.m first.');
+    end
+    
+    %% Assign data
     data = LF{yearIndex}.T;
     rho = rhoData{yearIndex};
 
@@ -83,7 +97,7 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data
     %% Compute A  
     dZfine = 5;
     dK = 1e-6;
-    [A, ~, ~, error] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K_opt, dK, rho, C, mask, interpOption);
+    [A, ~, ~, ~] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K_opt, dK, rho, C, mask, interpOption);
 
     %%
 %     Nt = (numel(T_data)-numel(mask))/ length(z_data);
