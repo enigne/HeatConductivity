@@ -16,20 +16,24 @@
 % Date: 2018-03-07
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [K_opt_out, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod, perturbT)
+function [K_opt_out, t_data, rho_opt_out] = solveInverseHeat(yearIndex, dataIndex, zK, timePeriod, includeRho, perturbT)
     %% Check the input
-    if nargin < 5
+    if nargin < 6
         % perturbation test on the data
         perturbT = [];
-        if nargin < 4
-            % use part of the time series of the whole data
-            timePeriod = [0, 1];
-            if nargin < 3
-                % solve K on zK only
-                zKmasked = linspace(1, 8, 5)';
-                if nargin < 2
-                    % use the averaged data
-                    dataIndex = 0;
+        if nargin < 5
+            % optimize Rho at the same time
+            includeRho = 0;
+            if nargin < 4
+                % use part of the time series of the whole data
+                timePeriod = [0, 1];
+                if nargin < 3
+                    % solve K on zK only
+                    zKmasked = linspace(1, 8, 5)';
+                    if nargin < 2
+                        % use the averaged data
+                        dataIndex = 0;
+                    end
                 end
             end
         end
@@ -74,6 +78,11 @@ function [K_opt_out, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePe
     
     % Cut zK and K0 to the size according to umaskedZ from z_data
     [zKmasked, K0, zKMflag] = initK(zK, umaskedZ);
+    
+    if includeRho
+        rho0 = K0;
+        K0 = [K0;rho0];
+    end
 
     % cut the data according to the range of K
     [T_data, z_data, indCutZ] = cutData(T_data, z_data, [zKmasked(1),zKmasked(end)]);
@@ -106,9 +115,12 @@ function [K_opt_out, t_data] = solveInverseHeat(yearIndex, dataIndex, zK, timePe
 
     %% Create output vector
     K_opt_out = [zK(:), zK(:)];
-    K_opt_out(zKMflag, 2) = K_opt;
+    K_opt_out(zKMflag, 2) = K_opt(1:length(zK));
 	K_opt_out(~zKMflag, 2) = nan;
-    
+    if includeRho
+        rho_opt_out = [zK(:), zK(:)];
+        rho_opt_out(:,2) = K_opt(length(zK)+1:end);
+    end
     %% Visualize measurement
     % Scale t_data to days
 %     t_data = scaleTimeUnit(t_data);

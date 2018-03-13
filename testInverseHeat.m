@@ -14,6 +14,8 @@ dataIndex = 0;
 K_opt = {};
 NK = 5;
 zK = linspace(1, 8, NK);
+% Optimize Rho at the same time
+includeRho = 1;
 
 timePeriods{1} = {[0, 59]./181}; % 2012
 timePeriods{2} = {[0, 40]./80}; % 2013
@@ -29,7 +31,7 @@ timePeriods{4} = {[1, 84]./360}; % 2015
 for i = 1: length(yearIndex)
     for j = 1: length(timePeriods{yearIndex(i)})
         for l = 1:length(dataIndex)
-            [K_opt_temp, t_data] = solveInverseHeat(yearIndex(i), dataIndex(l), zK, timePeriods{yearIndex(i)}{j});
+            [K_opt_temp, t_data, rho_opt_temp] = solveInverseHeat(yearIndex(i), dataIndex(l), zK, timePeriods{yearIndex(i)}{j}, includeRho);
             K_opt{i, j, l} = K_opt_temp;
             t_data_opt{i, j, l} = [t_data(1), t_data(end)];
         end

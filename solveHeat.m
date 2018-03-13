@@ -31,6 +31,10 @@ function [T]=solveHeat(t, z, x, heatParam)
     if length(x) == Nk
         rho = heatParam.rho;
         K = x;
+    else
+        K = x(1:Nk);
+        rho.rho = x(Nk+1:end)*330;
+        rho.z = heatParam.zRho;
     end
     
     % Get Kp on each z
