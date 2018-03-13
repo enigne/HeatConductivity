@@ -1,4 +1,4 @@
-function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = solveSensitivity(yearIndex, K_opt, zK, timePeriod)
+function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = solveSensitivity(yearIndex, K_opt, zK, timePeriod)
     %% Initialize
     % Settings
     interpOption = 'linear';
@@ -142,17 +142,17 @@ function [weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask] = so
     weightedAz = weightedAK * matDTDz;
     weightedD = weightedAz * R;
     
-    figure
-    subplot(2,1,1)
-    plot(z_data, weightedAz');
-    xlim([min(z_data), max(z_data)])
-    % legend(zALeg);
-    xlabel('z');
-    ylabel('A_z');
-    subplot(2,1,2)
-    plot(z_data, weightedD');
-    xlim([min(z_data), max(z_data)])
-    xlabel('z');
-    ylabel('A_zR');
-    legend(zALeg);
+%     figure
+%     subplot(2,1,1)
+%     plot(z_data, weightedAz');
+%     xlim([min(z_data), max(z_data)])
+%     % legend(zALeg);
+%     xlabel('z');
+%     ylabel('A_z');
+%     subplot(2,1,2)
+%     plot(z_data, weightedD');
+%     xlim([min(z_data), max(z_data)])
+%     xlabel('z');
+%     ylabel('A_zR');
+%     legend(zALeg);
 

@@ -33,7 +33,7 @@ for i = 1: length(yearIndex)
         zK = zK(~nanFlag);
         
         % solve for sensitivity
-        [weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},dTdz{i,j}, T_data{i,j}, mask{i,j}] = ...
+        [weightedAK{i,j}, weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},dTdz{i,j}, T_data{i,j}, mask{i,j}] = ...
             solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j});        
     end
 end
