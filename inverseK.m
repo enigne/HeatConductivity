@@ -15,33 +15,36 @@
 %                                     temperature over the 9 holes
 %   'dataIndex'	- index of the holes to be used, 0 means to use the average
 %                 date
-%   'zK'    	- z-coordinate of the K parameter
-%   'K0'     	- the initial guess of K;
+%   'zK'    	- z-coordinate of the K parameter;
+%   'x0'     	- the initial guess of the unknown;
 %   'Nz'        - number of grid for the computation;
 %   'rho'       - density of the ice;
-%   'noise'     - artificial noise matrix.
+%   'noise'     - artificial noise matrix (not in used);
 %   'timePeriod'- only part of t_data are taken into account. [0,1] indicates
 %                 the full data piece;
 %   'includeRho'- flag to optimize rho with a regularization term.
 % The return values:
-%   'K_opt'     - the optimal solution
+%   'x_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-13
+% Date: 2018-03-14
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod, includeRho)
+function x_opt = inverseK(data, dataIndex, zK, x0, Nz, rho, w, noise, timePeriod, includeRho, gamma)
     % Check the input variables
-    if nargin < 10
-        includeRho = 0;
-        if nargin < 9
-            timePeriod = [0, 1];
-            if nargin < 8
-                noise = [];
-                if nargin < 7
-                    w = 1;
-                    if nargin < 6
-                        rho = 900;
+    if nargin < 11
+        gamma = 1e-2;
+        if nargin < 10
+            includeRho = 0;
+            if nargin < 9
+                timePeriod = [0, 1];
+                if nargin < 8
+                    noise = [];
+                    if nargin < 7
+                        w = 1;
+                        if nargin < 6
+                            rho = 900;
+                        end
                     end
                 end
             end
@@ -80,7 +83,7 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod
     % Create the objective function
     if includeRho
         % optimize with Rho
-        objF = @(x) tempResidualReg(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
+        objF = @(x) tempResidualReg(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam, gamma);
     else
         %without Rho
         objF = @(x) tempResidual(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
@@ -88,9 +91,9 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod
     
     % Set options
     options = optimoptions('lsqnonlin','Display','iter', ...
-        'typicalX', K0,'TolFun', 1e-10, 'TolX', 1e-10, 'MaxFunEvals', 10000);
+        'typicalX', x0,'TolFun', 1e-10, 'TolX', 1e-10, 'MaxFunEvals', 10000);
     %'algorithm', 'levenberg-marquardt', 
     
     % Solve
-    [K_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, K0, zeros(size(K0)), 3*ones(size(K0)), options);
+    [x_opt,resnorm,residual,exitflag,output] = lsqnonlin(objF, x0, zeros(size(x0)), 3*ones(size(x0)), options);
 end

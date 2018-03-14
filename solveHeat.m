@@ -3,7 +3,7 @@
 % The input variables:
 %   't'             - grid point of the time discretization;       
 %   'z'             - grid point of the spatial discretization;
-%   'K'             - variable coefficient K(z);
+%   'x'             - variable coefficient x including K (and rho)
 %   'heatParam'     - other coefficients: 
 %                       'dt'        - time step;
 %                       'rho'       - density of the snow in vector form;
@@ -16,7 +16,7 @@
 %   'T'             - the solution in time*space;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-09
+% Date: 2018-03-14
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [T]=solveHeat(t, z, x, heatParam)
@@ -26,14 +26,15 @@ function [T]=solveHeat(t, z, x, heatParam)
     T0 = heatParam.T0;
     Tbc = heatParam.Tbc;
     
-    % split K and rho from x
+    % split K and rho from x if needed
     Nk = length(heatParam.zK);
     if length(x) == Nk
         rho = heatParam.rho;
         K = x;
     else
         K = x(1:Nk);
-        rho.rho = x(Nk+1:end)*330;
+        % scale rho back to the unit system for solving the heat equation
+        rho.rho = x(Nk+1:end) * heatParam.rhoScale;
         rho.z = heatParam.zRho;
     end
     

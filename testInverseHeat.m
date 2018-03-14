@@ -1,22 +1,28 @@
 % Script for testing inverse solver
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-09
+% Date: 2018-03-14
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
 clear
 close all
 
-%% Solve for K
-yearIndex = [1];
+%% Setup
+yearIndex = [1:4];
 dataIndex = 0;
-K_opt = {};
+
+% Optimize K  
 NK = 5;
 zK = linspace(1, 8, NK);
+
 % Optimize Rho at the same time
 includeRho = 1;
+gamma = 1e-2;
+NRho = NK;
+zRho = zK;
 
+% time intervals
 timePeriods{1} = {[0, 59]./181}; % 2012
 timePeriods{2} = {[0, 40]./80}; % 2013
 timePeriods{3} = {[0, 78]./360, [160, 360]./360}; % 2014
@@ -28,14 +34,24 @@ timePeriods{4} = {[1, 84]./360}; % 2015
 % timePeriods{4} = {[1, 20]./360, [20, 40]./360, [40, 60]./360, [60, 84]./360}; % 2015
 
 
+%% Solve for K
 for i = 1: length(yearIndex)
     for j = 1: length(timePeriods{yearIndex(i)})
         for l = 1:length(dataIndex)
-            [K_opt_temp, t_data, rho_opt_temp] = solveInverseHeat(yearIndex(i), dataIndex(l), zK, timePeriods{yearIndex(i)}{j}, includeRho);
+            [x_opt_temp, t_data, heatParam] = solveInverseHeat(yearIndex(i), dataIndex(l), zK, ...
+                timePeriods{yearIndex(i)}{j}, includeRho, gamma, zRho);
+            
+            % Parse x_opt_temp for different test cases
+            if includeRho
+                K_opt_temp = x_opt_temp(1:NK, :);
+                rho_opt_temp = x_opt_temp(NK+1:end, :);
+                rho_opt_temp(:,2) = rho_opt_temp(:, 2).*heatParam.rhoScale;
+                rho_opt{i, j, l} = rho_opt_temp;
+            else
+                K_opt_temp = x_opt_temp;
+            end
             K_opt{i, j, l} = K_opt_temp;
             t_data_opt{i, j, l} = [t_data(1), t_data(end)];
-            
-            rho_opt_temp(:,2) = rho_opt_temp(:, 2).*300;
         end
     end
 end
@@ -65,5 +81,10 @@ for i = 1: length(yearIndex)
 end
 
 %% Save data
-% dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-% save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+if includeRho
+    dataFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_maskedBC_longP.mat'];
+    save(dataFileName, 'K_opt', 'rho_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+else
+    dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
+    save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+end
