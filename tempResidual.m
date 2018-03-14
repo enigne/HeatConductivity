@@ -25,7 +25,7 @@ function F = tempResidual(x, HeatSolver, t, z, T_data, t_data, z_data, w, heatPa
     T_sol_int = project2D(T_sol, t, z, t_data, z_data);
     err = w .* (T_sol_int - T_data);   
     
-    mask = (((T_data<-2) & (~isnan(err))));
+    mask = (((T_data < heatParam.maskConst) & (~isnan(err))));
     
     compareErr = err(mask);
     n = length(compareErr);
