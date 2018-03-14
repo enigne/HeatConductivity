@@ -16,8 +16,8 @@ saveFig = 1;
 % Predefined parameters
 NK = 5;
 NRho = NK;
-gamma = [1e-4, 1e-3, 1e-1, 1e1];
-plotMarkers = {'-d', '-o', '-^', '-*'};
+gamma = [1e-4, 1e-3, 1e-1, 1e1, 1e3];
+plotMarkers = {'-d', '-o', '-^', '-*', '-+'};
 
 % load measurements
 try
@@ -34,7 +34,7 @@ catch
 end
     
 %% Go through all the test cases
-fig = figure('pos',[0 0 400 300]);
+fig = figure('pos',[0 0 600 400]);
 for i = 1:length(gamma)
     % load Opt K according to Nk
     dataFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_gamma', num2str(gamma(i)), '_maskedBC_longP.mat'];
@@ -65,7 +65,7 @@ for i = 1:length(gamma)
     plot(rho(:,1), rho(:,2), plotMarkers{i}, 'linewidth', 1.5)
     hold on
     
-    legendList{i} = ['gamma=', num2str(gamma(i))];
+    legendList{i} = ['$\gamma$=', num2str(gamma(i))];
 end
 
 
@@ -76,7 +76,7 @@ xlim([1, 8])
 ylim([0, 2.5])
 xlabel('z')
 ylabel('K')
-legend(legendList, 'Location', 'best')
+legend(legendList, 'Location', 'northwest','Interpreter','latex')
 
 % plot measured rho in subplot(2)
 subplot(2, 1, 2)
@@ -86,8 +86,8 @@ xlim([1, 8])
 ylim([300, 900])
 xlabel('z')
 ylabel('$\rho$','Interpreter','latex')
-legendList{i+1} = 'measurements';
-legend(legendList, 'Location', 'northwest')
+legendList{i+1} = 'data';
+legend(legendList, 'Location', 'northwest','Interpreter','latex')
 
 %% save figures
 if saveFig

@@ -13,12 +13,12 @@ yearIndex = [1:4];
 dataIndex = 0;
 
 % Optimize K  
-NK = 15;
+NK = 5;
 zK = linspace(1, 8, NK);
 
 % Optimize Rho at the same time
-includeRho = 0;
-gamma = 1e-4;
+includeRho = 1;
+gamma = 1e3;
 NRho = NK;
 zRho = zK;
 
