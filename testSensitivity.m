@@ -10,7 +10,7 @@ clear
 
 %% Initialize
 % Predefined parameters
-NK = 15;
+NK = 5;
 saveOptK = 1;
 
 % load Opt K according to Nk

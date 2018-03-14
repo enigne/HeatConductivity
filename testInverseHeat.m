@@ -13,12 +13,12 @@ yearIndex = [1:4];
 dataIndex = 0;
 
 % Optimize K  
-NK = 5;
+NK = 15;
 zK = linspace(1, 8, NK);
 
 % Optimize Rho at the same time
-includeRho = 1;
-gamma = 1e-2;
+includeRho = 0;
+gamma = 1e-4;
 NRho = NK;
 zRho = zK;
 
@@ -27,12 +27,6 @@ timePeriods{1} = {[0, 59]./181}; % 2012
 timePeriods{2} = {[0, 40]./80}; % 2013
 timePeriods{3} = {[0, 78]./360, [160, 360]./360}; % 2014
 timePeriods{4} = {[1, 84]./360}; % 2015
-
-% timePeriods{1} = {[0, 20]./181, [20, 40]./181, [40, 59]./181, [60, 73]./181, [76, 90]./181}; % 2012
-% timePeriods{2} = {[0, 20]./80, [20, 40]./80, [47, 59]./80}; % 2013
-% timePeriods{3} = {[0, 20]./360, [20, 40]./360, [40, 60]./360, [60, 78]./360}; % 2014
-% timePeriods{4} = {[1, 20]./360, [20, 40]./360, [40, 60]./360, [60, 84]./360}; % 2015
-
 
 %% Solve for K
 for i = 1: length(yearIndex)
@@ -82,7 +76,7 @@ end
 
 %% Save data
 if includeRho
-    dataFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_maskedBC_longP.mat'];
+    dataFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_gamma', num2str(gamma), '_maskedBC_longP.mat'];
     save(dataFileName, 'K_opt', 'rho_opt', 't_data_opt', 'timePeriods', 'yearIndex');
 else
     dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];

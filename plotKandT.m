@@ -11,14 +11,15 @@ close all
 plotAz = 0;
 saveAz = 0;
 
-plotOptK = 1;
+plotOptK = 0;
+saveK = 0;
 
-plotAk = 0;
-saveAk = 0;
+plotAk = 1;
+saveAk = 1;
 
 %% Load data
 % Predefined parameters
-NK = 5;
+NK = 8;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
@@ -66,7 +67,7 @@ end
 
 %% Plot Opt K and data
 if plotOptK
-    figure('pos',[0 0 900 600])
+    fig = figure('pos',[0 0 900 600]);
     subplot(2, 1, 1)
     surf(tMesh, zMesh, KMesh)
     hold on
@@ -108,7 +109,11 @@ if plotOptK
     ylabel('z')
     xlim([0,max(t_cord)]);
     ylim([1,11.5]);
-    title('Temperature measurements')
+    title('Temperature measurements') 
+    
+	if saveK
+        print(fig, ['Figures/Optimal_K', num2str(NK), '_z_t'], '-dpng', '-r600');
+	end
 end
 %% Plot Az and Az*R
 if plotAz
@@ -155,7 +160,7 @@ if plotAz
             grid off
             xlabel('$z_K$', 'Interpreter','latex')
             ylabel('deepth')
-            caxis([-5, 10])
+            caxis([-5, 5])
             title(['$A_zR$ from ', daytemp(1,:),' to ', daytemp(2,:) ], 'Interpreter','latex');
             if saveAz
                 print(fig, ['Figures/Sensitivity_z', num2str(NK),'_',daytemp(1,:)], '-dpng', '-r600');
@@ -187,7 +192,7 @@ if plotAk
                     grid off
                     ylim([-2,8]);
                     title(['$A_{K',num2str(k),'}$'], 'Interpreter','latex')
-                    caxis([-5e-3, 5e-3]);
+                    caxis([-5e-4, 5e-4]);
                     ylim([1,8])
                 end
             end
