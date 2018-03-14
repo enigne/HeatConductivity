@@ -62,6 +62,7 @@ for i = 1: length(yearIndex)
         legendList{n} = [daytemp(1,:),' to ', daytemp(2,:)];
         n = n+1;
     end
+    title(['Optimal K in 201', num2str(yearIndex(i)+1)]);
     xlim([1, 8])
     ylim([0, 2.5])
     xlabel('z')
