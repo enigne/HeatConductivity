@@ -10,7 +10,8 @@ clear
 
 %% Initialize
 % Predefined parameters
-NK = 5;
+NK = 15;
+saveOptK = 1;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
@@ -43,7 +44,7 @@ for i = 1: length(yearIndex)
 end
 
 %% Plot OptK and error bar
-figure('pos',[0 0 900 600])
+figOptK = figure('pos',[0 0 900 600]);
 
 for i = 1: length(yearIndex)
     n = 1;
@@ -69,7 +70,9 @@ for i = 1: length(yearIndex)
     ylabel('K')
     legend(legendList)
 end
-
+if saveOptK
+    print(figOptK, ['Figures/Optimal_K', num2str(NK), '_error' ], '-depsc');
+end
 
 %% Save data
 dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
