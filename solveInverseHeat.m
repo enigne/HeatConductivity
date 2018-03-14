@@ -8,6 +8,7 @@
 %   'zK'    	- z-coordinate of the K parameter
 %   'timePeriod'- only part of t_data are taken into account. [0,1] indicates
 %                 the full data piece;
+%   'includeRho'- flag to optimize rho together with K;
 %   'perturbT'  - artificial noise matrix.
 % The return values:
 %   'K_opt'     - the optimal solution
@@ -101,7 +102,7 @@ function [K_opt_out, t_data, rho_opt_out] = solveInverseHeat(yearIndex, dataInde
     
     %% Optimize for the averaged value
     Nz = length(z_data);
-    K_opt = inverseK(data, dataIndex, zKmasked, K0, Nz, rho, w, perturbT, timePeriod);
+    K_opt = inverseK(data, dataIndex, zKmasked, K0, Nz, rho, w, perturbT, timePeriod, includeRho);
 
     %% Solve Heat equation
 
