@@ -14,7 +14,7 @@
 
 function rho =density(rhoC, z)
     if (isstruct(rhoC))
-        rho = interp1(rhoC.z, rhoC.rho, z, 'linear');
+        rho = interp1(rhoC.z, rhoC.rho, z, 'linear', 'extrap');
     else
         rho = ones(size(z)) * rhoC;
     end

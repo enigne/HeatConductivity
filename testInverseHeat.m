@@ -34,6 +34,8 @@ for i = 1: length(yearIndex)
             [K_opt_temp, t_data, rho_opt_temp] = solveInverseHeat(yearIndex(i), dataIndex(l), zK, timePeriods{yearIndex(i)}{j}, includeRho);
             K_opt{i, j, l} = K_opt_temp;
             t_data_opt{i, j, l} = [t_data(1), t_data(end)];
+            
+            rho_opt_temp(:,2) = rho_opt_temp(:, 2).*300;
         end
     end
 end

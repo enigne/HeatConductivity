@@ -22,23 +22,27 @@
 %   'noise'     - artificial noise matrix.
 %   'timePeriod'- only part of t_data are taken into account. [0,1] indicates
 %                 the full data piece;
+%   'includeRho'- flag to optimize rho with a regularization term.
 % The return values:
 %   'K_opt'     - the optimal solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-02-02
+% Date: 2018-03-13
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod)
+function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod, includeRho)
     % Check the input variables
-    if nargin < 9
-        timePeriod = [0, 1];
-        if nargin < 8
-            noise = [];
-            if nargin < 7
-                w = 1;
-                if nargin < 6
-                    rho = 900;
+    if nargin < 10
+        includeRho = 0;
+        if nargin < 9
+            timePeriod = [0, 1];
+            if nargin < 8
+                noise = [];
+                if nargin < 7
+                    w = 1;
+                    if nargin < 6
+                        rho = 900;
+                    end
                 end
             end
         end
@@ -74,7 +78,14 @@ function K_opt = inverseK(data, dataIndex, zK, K0, Nz, rho, w, noise, timePeriod
 
     %% Optimisation
     % Create the objective function
-    objF = @(x) tempResidual(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
+    if includeRho
+        % optimize with Rho
+        objF = @(x) tempResidualReg(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
+    else
+        %without Rho
+        objF = @(x) tempResidual(x, @solveHeat, t, z, T_data, t_data, z_data, w, heatParam);
+    end
+    
     % Set options
     options = optimoptions('lsqnonlin','Display','iter', ...
         'typicalX', K0,'TolFun', 1e-10, 'TolX', 1e-10, 'MaxFunEvals', 10000);
