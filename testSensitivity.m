@@ -10,14 +10,15 @@ clear
 
 %% Initialize
 % Predefined parameters
-NK = 15;
+NK = 8;
 NRho = NK;
+gamma = 10;
 saveOptK = 1;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
 % optKFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-optKFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_maskedBC_longP.mat'];
+optKFileName = ['invK', num2str(NK), 'rho', num2str(NRho),'_gamma', num2str(gamma), '_maskedBC_longP.mat'];
 try
     load(optKFileName);
 catch
