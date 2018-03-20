@@ -1,5 +1,32 @@
+% Sensitivity analysis with the optimal K and Rho
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   'yearIndex'     - index of the year to be used, from 2012-2015;
+%   'K_opt'         - the optimal K solutions;
+%   'zK'            - z-coordinate of the K parameter;
+%   'timePeriod'    - only part of t_data are taken into account. [0,1] indicates
+%                       the full data piece;
+%   'rho_opt'       - the optimal rho solutions;
+%   'zRho'          - z-coordinate of the rho parameter;    
+% The return values:
+%   'weightedAK'    - weighted sensitivity matrix dK = weightedAK*dT;
+%   'weightedB'     - weighted matrix A^T*W*A;
+%   'weightedSE'    - sensitivity of K;
+%   'weightedAz'    - weighted sensitivity matrix dK = weightedAz*dz;
+%   'weightedD'     - accumulated weighted sensitivity matrix dK = weightedD*de, 
+%                       where dz = R*de;
+%   'weightedARho' 	- weighted sensitivity matrix dk = weightedARho*dRho;
+%   'dTdz'        	- temprature gradient;
+%   'T_data'        - measurement after cutoff;
+%   'mask'          - mask matrix used in sensitivity analysis;
+%   't_data'        - time points used in the computation, in the unit of seconds;
+%   'z_data'        - spatial grids used in the computation.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-03-20
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, weightedARho, dTdz, T_data, mask, t_data, z_data] = ...
-    solveSensitivity(yearIndex, K_opt, zK, timePeriod, Rho, zRho)
+    solveSensitivity(yearIndex, K_opt, zK, timePeriod, rho_opt, zRho)
     if nargin < 5
         loadRhoFlag = 1;
     else 
@@ -35,7 +62,7 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, weightedARho
         % Load rho data
         rho = rhoData{yearIndex};
     else
-        rho.rho = Rho;
+        rho.rho = rho_opt;
         rho.z = zRho;
     end
     % Load Measurements

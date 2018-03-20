@@ -1,7 +1,7 @@
 % Script for sensitivity analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-09
+% Date: 2018-03-20
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
@@ -44,7 +44,7 @@ for i = 1: length(yearIndex)
         
         % solve for sensitivity
         [weightedAK{i,j}, weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},...
-        weightedARho{i,j}, dTdz{i,j},T_data{i,j}, mask{i,j}, t_cell{i,j}, z_cell{i,j}] = ...
+        weightedARho{i,j}, dTdz{i,j}, T_data{i,j}, mask{i,j}, t_cell{i,j}, z_cell{i,j}] = ...
             solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j}, rho, zRho);
     end
 end
