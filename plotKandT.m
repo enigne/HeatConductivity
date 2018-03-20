@@ -8,18 +8,18 @@ clear
 close all
 
 %% options
-plotAz = 0;
+plotAz = 1;
 saveAz = 0;
 
-plotOptK = 0;
+plotOptK = 1;
 saveK = 0;
 
 plotAk = 1;
-saveAk = 1;
+saveAk = 0;
 
 %% Load data
 % Predefined parameters
-NK = 8;
+NK = 5;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
