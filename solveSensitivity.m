@@ -1,4 +1,10 @@
-function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data, mask, t_data, z_data] = solveSensitivity(yearIndex, K_opt, zK, timePeriod)
+function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, weightedARho, dTdz, T_data, mask, t_data, z_data] = ...
+    solveSensitivity(yearIndex, K_opt, zK, timePeriod, Rho, zRho)
+    if nargin < 5
+        loadRhoFlag = 1;
+    else 
+        loadRhoFlag = 0;
+    end
     %% Initialize
     % Settings
     interpOption = 'linear';
@@ -9,14 +15,9 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data
     catch
         error('Please check the original data file LF_4_aver.mat');
     end
-    
-    % Load density data
-    try
-        load('densityData.mat');
-    catch
-        error('densityData.mat not found. Try to run preprocessRho.m first.');
-    end
-    
+    % Assign data
+    data = LF{yearIndex}.T;
+
     % Load average and mean
     try
         load('summary.mat');
@@ -24,10 +25,19 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data
         error('summary.mat not found. Try to run averageAndVariance.m first.');
     end
     
-    %% Assign data
-    data = LF{yearIndex}.T;
-    rho = rhoData{yearIndex};
-
+    % Load density data
+    if loadRhoFlag
+        try
+            load('densityData.mat');
+        catch
+            error('densityData.mat not found. Try to run preprocessRho.m first.');
+        end
+        % Load rho data
+        rho = rhoData{yearIndex};
+    else
+        rho.rho = Rho;
+        rho.z = zRho;
+    end
     % Load Measurements
     [t_data, z_data, T_data, indt] = loadData(data, 0, timePeriod);
 
@@ -67,85 +77,28 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data
     %% Compute dTdz
     dZfine = 5;
     [dTdz, matDTDz, ~, ~] = computeDTDz(z_data, t_data, T_data, dZfine, zK, K_opt, rho, C, mask, interpOption);
-%     [dTdzData, ~, ~, ~] = computeDTDzFromData(z_data, t_data, T_data, dZfine, [], interpOption);
-% 
-%     t_data = scaleTimeUnit(t_data);
-%     [X_data, Y_data] = meshgrid(t_data, z_data);
-%     figure
-%     subplot(2,1,1)
-%     surf(X_data, Y_data, dTdz);
-%     view(2)
-%     shading interp;
-%     colorbar
-%     colormap(jet)
-%     axis tight
-%     xlabel('t (days)');
-%     ylabel('z (m)');
-%     title(['Temperature gradient 201', num2str(yearIndex+1)])
-%     caxis([-4, 4])
-%     subplot(2,1,2)
-%     surf(X_data, Y_data, dTdzData);
-%     view(2)
-%     shading interp;
-%     colorbar
-%     colormap(jet)
-%     axis tight
-%     xlabel('t (days)');
-%     ylabel('z (m)');
-%     title(['Temperature gradient 201', num2str(yearIndex+1)])
-%     caxis([-4, 4])
-    %% Compute A  
+
+    %% Compute AK  
     dZfine = 5;
     dK = 1e-6;
     [A, ~, ~, ~] = computeKSensitivity(z_data, t_data, T_data, dZfine, zK, K_opt, dK, rho, C, mask, interpOption);
 
-    %%
-%     Nt = (numel(T_data)-numel(mask))/ length(z_data);
+    %% Compute ARho
+    dRho = 1e-3;
+    ARho = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K_opt, dRho, rho, C, mask, interpOption);
+
+    %% Compute weight
     Nt = length(t_data);
-    %% compute weight
     w = 1./ ((T_S));
     W = w(:);
     W(mask) = 0;
     weightedA = A' * spvardiag(W);
     weightedB = (weightedA * A);
     weightedAK = weightedB \ weightedA;
-
     weightedSE = sqrt( diag( inv(weightedB./Nt) ) );
 
-%     %% Plot Weighted AK and A
-%     figure
-%     [X_data, Y_data] = meshgrid(t_data, z_data);
-% 
-%     for i = 1 : Nk+1
-%         if i > 1
-%     %         p_data = reshape(weightedA(i-1,:), size(X_data));
-%             p_data = reshape(weightedAK(i-1,:), size(X_data));
-%             subTitle = ['K',num2str(i-1)];
-%         else
-%             p_data = reshape(W.^0.5, size(X_data));
-%             subTitle = ['Weights in 201',num2str(yearIndex+1)];
-%         end
-% 
-%         p_data(mask) = 0;
-% 
-%         subplot(ceil((Nk+1)/2), 2, i)
-%         surf(X_data, Y_data, p_data);
-%         view(2)
-%         shading interp;
-%         colorbar
-%         colormap(jet)
-%         axis tight
-%         title(subTitle);
-%         if i == 1
-%             caxis([0, 15]);
-%         else
-%             caxis([-1e-3, 1e-3]);
-%         end
-%         grid off
-%     end
-
+    weightedARho = -weightedAK * ARho;
     %% Plot Az and Az*R
-
     zALeg = {};
     for i = 1: Nk
         zALeg{i} = ['K', num2str(i)];
@@ -156,17 +109,3 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, dTdz, T_data
     weightedAz = weightedAK * matDTDz;
     weightedD = weightedAz * R;
     
-%     figure
-%     subplot(2,1,1)
-%     plot(z_data, weightedAz');
-%     xlim([min(z_data), max(z_data)])
-%     % legend(zALeg);
-%     xlabel('z');
-%     ylabel('A_z');
-%     subplot(2,1,2)
-%     plot(z_data, weightedD');
-%     xlim([min(z_data), max(z_data)])
-%     xlabel('z');
-%     ylabel('A_zR');
-%     legend(zALeg);
-

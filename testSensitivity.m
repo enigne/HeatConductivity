@@ -10,12 +10,14 @@ clear
 
 %% Initialize
 % Predefined parameters
-NK = 5;
+NK = 15;
+NRho = NK;
 saveOptK = 1;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
-optKFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
+% optKFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
+optKFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_maskedBC_longP.mat'];
 try
     load(optKFileName);
 catch
@@ -30,6 +32,8 @@ for i = 1: length(yearIndex)
         % get specific data
         zK = K_opt{i,j}(:,1);
         K = K_opt{i,j}(:,2);
+        zRho = rho_opt{i,j}(:,1);
+        rho = rho_opt{i,j}(:,2);
         t = t_data_opt{i,j};
         
         % remove nan in K and zK
@@ -38,8 +42,9 @@ for i = 1: length(yearIndex)
         zK = zK(~nanFlag);
         
         % solve for sensitivity
-        [weightedAK{i,j}, weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},dTdz{i,j}, ...
-            T_data{i,j}, mask{i,j}, t_cell{i,j}, z_cell{i,j}] = solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j});
+        [weightedAK{i,j}, weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},...
+        weightedARho{i,j}, dTdz{i,j},T_data{i,j}, mask{i,j}, t_cell{i,j}, z_cell{i,j}] = ...
+            solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j}, rho, zRho);
     end
 end
 
@@ -76,5 +81,5 @@ end
 
 %% Save data
 dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
-save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE','K_opt','t_data_opt', ...
-    't_cell', 'z_cell', 'timePeriods', 'yearIndex');
+save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE', ...
+    'weightedARho', 'K_opt','t_data_opt', 't_cell', 'z_cell', 'timePeriods', 'yearIndex');
