@@ -1,21 +1,28 @@
 % Script for plot optimal K, error bar and T_data, Az and Az*R
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-13
+% Date: 2018-03-20
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
 close all
 
 %% options
-plotAz = 1;
+
+% deepth sensitivity
+plotAz = 0;
 saveAz = 0;
 
-plotOptK = 1;
+% T sensitivity
+plotAk = 0;
+saveAk = 0;
+
+% K errors
+plotOptK = 0;
 saveK = 0;
 
-plotAk = 1;
-saveAk = 0;
+% rho sensitivity
+printARho = 1;
 
 %% Load data
 % Predefined parameters
@@ -199,6 +206,23 @@ if plotAk
         end
         if saveAk
             print(fig, ['Figures/Sensitivity_AK_Nk', num2str(NK), '_K', num2str(k) ], '-dpng', '-r600');
+        end
+    end
+end
+
+%% print out ARho
+if printARho
+    for i = 1: length(yearIndex)
+        for j = 1: length(timePeriods{yearIndex(i)})
+            tempARho = weightedARho{i,j}*1e4;
+            disp(['% 201', num2str(yearIndex(i)+1), '-', num2str(j) ]);
+            disp(['\[A_{\rho 201', num2str(yearIndex(i)+1), '}=\begin{bmatrix}']);
+            for m = 1:size(tempARho,1)
+                outputString = sprintf('%.3f & ', tempARho(m,1:end-1));
+                outputString = [outputString, sprintf('%.3f \\\\ ', tempARho(m,end))];
+                disp(outputString);
+            end
+            disp('\end{bmatrix}\]');
         end
     end
 end
