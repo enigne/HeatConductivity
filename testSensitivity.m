@@ -83,4 +83,4 @@ end
 %% Save data
 dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
 save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE', ...
-    'weightedARho', 'K_opt','t_data_opt', 't_cell', 'z_cell', 'timePeriods', 'yearIndex');
+    'weightedARho', 'K_opt','t_data_opt', 't_cell', 'z_cell', 'timePeriods', 'yearIndex', 'rho_opt');
