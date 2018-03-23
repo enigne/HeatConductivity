@@ -9,6 +9,10 @@ close all
 %% options
 plotKandRho = 0;
 plotT = 0;
+plotRho = 0;
+plotAk = 0;
+plotAz = 1;
+
 %% Load data
 % Predefined parameters
 NK = 8;
@@ -104,7 +108,7 @@ if plotKandRho
 end
 %% Plot T Data and rho data
 if plotT
-    fig = figure('pos',[0 0 700 250]);
+    fig = figure('pos',[0 0 600 200]);
     t_bc = zeros(5,2);
     n = 1;
     gapConst = 40;
@@ -130,8 +134,9 @@ if plotT
             t_tick(n) = t_offset;
             
             z_data = z_offset(i) + z_data;
+            t_data = t_data - t_offset;
             
-            [X_data, Y_data] = meshgrid(t_data-t_offset, z_data);
+            [X_data, Y_data] = meshgrid(t_data, z_data);
             
             surf(X_data, Y_data, T_data)
             hold on
@@ -147,7 +152,7 @@ if plotT
     grid off
     xlabel('t (days)')
     ylabel('$z$', 'Interpreter','latex')
-    xlim([0,max(t_data-t_offset)]);
+    xlim([0,max(t_data)]);
     ylim([1,11.5]);
     title('Temperature measurements')
     
@@ -162,15 +167,138 @@ if plotT
     
     xticks(ticks);
     xticklabels(tickLabel);
+    set(gca,'fontsize',12);
     
+    ax = gca;
+    ax.XAxis.FontSize = 8;
     
     % Save png
     print(fig, ['Figures/tempMeasurements'], '-dpng', '-r600');
 end
-%%
+%% Plot rho data
+if plotRho
+    figRho = figure('pos',[0 0 600 300]);
+    for i = 1: length(yearIndex)
+        subplot(1, length(yearIndex), i)
+        plot(rhoData{i}.rho,rhoData{i}.z, 'r', 'LineWidth' ,1.5)
+        xlim([350,750]);
+        ylim([1,12]);
+        view([0, -90]);
+        xlabel('$\rho$','Interpreter','latex');
+        title(['201',num2str(i+1)])
+    end
+    matlab2tikz('measuredRho.tex','height', '\fheight', 'width', '\fwidth' );
+end
 
+%% Plot AK
+if plotAk && plotT % need to run plotT to remove the gap
+    figAk = figure('pos',[0 0 736 253]);
+    for k = 1: NK
+        %         subplot(ceil(NK/2), 2, k)
+        %     figAk = figure('pos',[0 0 736 253]);
+        
+        n = 1;
+        for i = 1: length(yearIndex)
+            for j = 1: length(timePeriods{yearIndex(i)})
+                if k <= size(weightedAK{i,j}, 1)
+                    t = (t_cell{i,j}-t_cell{1,1}(1))/24/3600+1-t_tick(n);
+                    z = z_cell{i,j}+  z_offset(i);
+                    Ak = reshape(weightedAK{i,j}(k,:), length(z), length(t));
+                    [tmesh, zmesh] = meshgrid(t,z);
+                    %                     surf(tmesh, zmesh, Ak)
+                    hold on
+                    n = n + 1;
+                end
+            end
+        end
+        view([0,-90])
+        shading interp;
+        colormap(jet)
+        axis tight
+        
+        xticks(ticks);
+        if k <= NK -2
+            xticklabels([]);
+        else
+            xticklabels(tickLabel);
+            xlabel('t (days)')
+        end
+        
+        if mod(k,2)
+            ylabel('z')
+        else
+            yticklabels([]);
+            %                     colorbar
+        end
+        
+        grid off
+        %         title(['$A_{K',num2str(k),'}$'], 'Interpreter','latex')
+        caxis([-5e-4, 5e-4]);
+        ylim([1,11.5])
+        xlim([ticks(1), ticks(end)])
+        set(gca,'FontSize',12);
+        %
+        %         ax = gca;
+        %         ax.XAxis.FontSize = 8;
+        hAxes = gca;
+        hAxes.XRuler.Axle.LineStyle = 'none';
+        axis off
+        %                 print(figAk, ['Figures/sensitivityT/Sensitivity_AK_Nk', num2str(NK),'K',num2str(k) ], '-dpng', '-r600');
+        
+    end
+    colorbar('southoutside')
+    print(figAk, ['Figures/Sensitivity_AK_Nk', num2str(NK),'_leg' ], '-dpng', '-r600');
+    % 	matlab2tikz('Sensitivity_AK_Nk.tex','height', '\fheight', 'width', '\fwidth' );
+end
 
-
-
-
-
+%% Plot Az and Az*R
+if plotAz
+    figAz = figure('pos',[0 0 600 300]);
+    n = 1;
+    for i = 1: length(yearIndex)
+        for j = 1: length(timePeriods{yearIndex(i)})
+            %             figAz = figure('pos',[0 0 120 300]);
+            %             subplot(1, 5, n);
+            tempAz = weightedAz{i,j};
+            tempD = weightedD{i,j};
+            [nK, nz] = size(tempAz);
+            
+            % get date
+            t_conv = scaleTimeUnit(t_data_opt{i,j},'','');
+            daytemp = datestr(t_conv,'yyyy-mm-dd');
+            
+            
+            zK = linspace(1, 8, nK);
+            z_data = 1:0.1:8;
+            
+            zK = zK(1:nK);
+            z_data = z_data(1:nz)+ 1* z_offset(i);
+            
+            % plot
+            [X, Y] = meshgrid(zK, z_data);
+            %             surf(X, Y, tempD')
+            view([0,-90])
+            shading interp;
+            %             colorbar
+            colormap(jet)
+            grid off
+            xlim([1,8])
+            ylim([1,11.5])
+            xlabel('$z_K$', 'Interpreter','latex')
+            ylabel('deepth')
+            caxis([-5, 5])
+            %             title(['$A_zR$ from ', daytemp(1,:),' to ', daytemp(2,:) ], 'Interpreter','latex');
+            set(gca,'FontSize',12);
+            hAxes = gca;
+            hAxes.XRuler.Axle.LineStyle = 'none';
+            axis off
+            %             print(figAz, ['Figures/sensitivityZ/Sensitivity_z', num2str(NK),'_',num2str(n)], '-dpng', '-r600');
+            
+            n = n +1;
+        end
+    end
+    colorbar('southoutside')
+    %         matlab2tikz('sensitivityZ.tex','height', '\fheight', 'width', '\fwidth' );
+    print(figAz, ['Figures/sensitivityZ/Sensitivity_z_leg'], '-dpng', '-r600');
+    
+end
