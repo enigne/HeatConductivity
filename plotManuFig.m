@@ -1,7 +1,7 @@
 % Script for generating plots in the manuscript
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-22
+% Date: 2018-03-26
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
@@ -11,8 +11,9 @@ plotKandRho = 0;
 plotT = 0;
 plotRho = 0;
 plotAk = 0;
-plotAz = 1;
-
+plotAz = 0;
+plotTRho = 0;
+plotFitRhoK = 1;
 %% Load data
 % Predefined parameters
 NK = 8;
@@ -301,4 +302,82 @@ if plotAz
     %         matlab2tikz('sensitivityZ.tex','height', '\fheight', 'width', '\fwidth' );
     print(figAz, ['Figures/sensitivityZ/Sensitivity_z_leg'], '-dpng', '-r600');
     
+end
+
+%%
+if plotTRho
+    %     for i = 1: length(yearIndex)
+    %         for j = 1: length(timePeriods{yearIndex(i)})
+    i = 1; j = 1;
+    figRho = figure('pos',[0 0 900 300]);
+    tempARho = weightedARho{i,j}*1e4;
+    zK = 1:size(tempARho, 1);
+    zRho = 1:size(tempARho, 2);
+    [X,Y] = meshgrid(zRho, zK);
+    %     surf(X, Y, tempARho)
+    view([0,-90])
+    shading interp;
+    colorbar('southoutside')
+    xlabel('$z_K$', 'Interpreter','latex')
+    ylabel('deepth')
+    colormap(jet)
+    grid off
+    caxis([-10, 10])
+    hAxes = gca;
+    hAxes.XRuler.Axle.LineStyle = 'none';
+    axis off
+    %         end
+    %     end
+    %     print(figRho, ['Figures/Sensitivity_Rho'], '-dpng', '-r600');
+    print(figRho, ['Figures/Sensitivity_Rho_leg'], '-dpng', '-r600');
+    
+end
+%%
+if plotFitRhoK
+    figK_Rho = figure('pos',[0 0 600 400]);
+    plotMarkers = {'-d', '-x', '-^', '-*', '-+'};
+    K_vec = [];
+    rho_vec = [];
+    
+    n = 1;
+    for i = 1: length(yearIndex)
+        for j = 1: length(timePeriods{yearIndex(i)})
+            % fetch data at specific year
+            K = K_opt{yearIndex(i), j}(1:end-1,:);
+            rho = rho_opt{yearIndex(i), j}(1:end-1,:);
+            err = weightedSE{i,j}(1:end-1,:);
+            
+            nanFlagK = isnan(K(:,2));
+            nanFlagRho = isnan(rho(:,2));
+            K = K(~nanFlagK, :);
+            rho = rho(~nanFlagRho, :);
+            
+            K_vec = [K_vec;K(:,2)];
+            rho_vec = [rho_vec;rho(:,2)];
+            
+            % plot K
+            plot(K(:,2), rho(:,2), plotMarkers{n}(2), 'linewidth', 2)
+            hold on
+            %             errorbar(K(:,2), rho(:,2), err,'horizontal','LineStyle','none')
+            if j == 2
+                legendKRhoList{n} = ['201', num2str(yearIndex(i)+1),'-2'];
+            else
+                legendKRhoList{n} = ['201', num2str(yearIndex(i)+1)];
+            end
+            n = n +1;
+        end
+    end
+    xlim([0, 2])
+    ylim([400, 650])
+    
+    p = polyfit(K_vec, rho_vec, 2);
+    x = sort(K_vec);
+    y = polyval(p, x);
+    plot(x, y,'--')
+    
+    legendKRhoList{n} = ['$\rho$=', num2str(p(1),'%.2f'),'$K^2$+',num2str(p(2),'%.2f'),'K+', num2str(p(3),'%.2f')];
+    xlabel('K')
+    ylabel('$\rho$','Interpreter','latex')
+    legend(legendKRhoList, 'Location', 'best','Interpreter','latex')
+%     matlab2tikz('K_rho.tex','height', '\fheight', 'width', '\fwidth' );
 end
