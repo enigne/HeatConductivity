@@ -1,7 +1,7 @@
 % Script for sensitivity analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-20
+% Date: 2018-04-26
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
@@ -13,7 +13,7 @@ clear
 NK = 8;
 NRho = NK;
 gamma = 10;
-saveOptK = 1;
+saveData = 0;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
@@ -43,8 +43,8 @@ for i = 1: length(yearIndex)
         zK = zK(~nanFlag);
         
         % solve for sensitivity
-        [weightedAK{i,j}, weightedB{i,j}, weightedSE{i,j}, weightedAz{i,j}, weightedD{i,j},...
-        weightedARho{i,j}, dTdz{i,j}, T_data{i,j}, mask{i,j}, t_cell{i,j}, z_cell{i,j}] = ...
+        [weightedAK{i,j}, weightedB{i,j}, weightedSE{i,j}, weightedSE_t_indep{i,j}, weightedAz{i,j}, ...
+            weightedD{i,j}, weightedARho{i,j}, dTdz{i,j}, T_data{i,j}, mask{i,j}, t_cell{i,j}, z_cell{i,j}] = ...
             solveSensitivity(yearIndex(i), K, zK, timePeriods{yearIndex(i)}{j}, rho, zRho);
     end
 end
@@ -64,9 +64,11 @@ for i = 1: length(yearIndex)
         zK = zK(~nanFlag);
         errorbar(zK, K, weightedSE{i,j}, 'linewidth', 1.5);
         hold on;
+        errorbar(zK, K, weightedSE_t_indep{i,j}, 'linewidth', 1.5);
         t_conv = scaleTimeUnit(t_data_opt{i,j},'','');
         daytemp = datestr(t_conv,'yyyy-mm-dd');
-        legendList{n} = [daytemp(1,:),' to ', daytemp(2,:)];
+        legendList{2*n-1} = [daytemp(1,:),' to ', daytemp(2,:)];
+        legendList{2*n} = [daytemp(1,:),' to ', daytemp(2,:),' t independet'];
         n = n+1;
     end
     title(['Optimal K in 201', num2str(yearIndex(i)+1)]);
@@ -76,11 +78,12 @@ for i = 1: length(yearIndex)
     ylabel('K')
     legend(legendList)
 end
-if saveOptK
-    print(figOptK, ['Figures/Optimal_K', num2str(NK), '_error' ], '-depsc');
-end
+
 
 %% Save data
-dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
-save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE', ...
-    'weightedARho', 'K_opt','t_data_opt', 't_cell', 'z_cell', 'timePeriods', 'yearIndex', 'rho_opt');
+if saveData
+    dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
+    save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE', ...
+        'weightedSE_t_indep', 'weightedARho', 'K_opt','t_data_opt', 't_cell', 'z_cell', ...
+        'timePeriods', 'yearIndex', 'rho_opt');
+end

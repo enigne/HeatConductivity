@@ -12,6 +12,7 @@
 %   'weightedAK'    - weighted sensitivity matrix dK = weightedAK*dT;
 %   'weightedB'     - weighted matrix A^T*W*A;
 %   'weightedSE'    - sensitivity of K;
+%   'weightedSE_t_indep'    - sensitivity of K, computed by time independent assumption;
 %   'weightedAz'    - weighted sensitivity matrix dK = weightedAz*dz;
 %   'weightedD'     - accumulated weighted sensitivity matrix dK = weightedD*de, 
 %                       where dz = R*de;
@@ -23,9 +24,9 @@
 %   'z_data'        - spatial grids used in the computation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-20
+% Date: 2018-04-26
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, weightedARho, dTdz, T_data, mask, t_data, z_data] = ...
+function [weightedAK, weightedB, weightedSE, weightedSE_t_indep, weightedAz, weightedD, weightedARho, dTdz, T_data, mask, t_data, z_data] = ...
     solveSensitivity(yearIndex, K_opt, zK, timePeriod, rho_opt, zRho)
     if nargin < 5
         loadRhoFlag = 1;
@@ -116,14 +117,32 @@ function [weightedAK, weightedB, weightedSE, weightedAz, weightedD, weightedARho
 
     %% Compute weight
     Nt = length(t_data);
+    Nz = length(z_data);
+    
     w = 1./ ((T_S));
     W = w(:);
     W(mask) = 0;
     weightedA = A' * spvardiag(W);
+    % A^T*W*A
     weightedB = (weightedA * A);
+    % Ar
     weightedAK = weightedB \ weightedA;
+    % variance
     weightedSE = sqrt( diag( inv(weightedB./Nt) ) );
 
+    % Cov(dk)=Ar*e*s^2*e^T*Ar^T with the assumption that the errors are
+    % time independent
+    tempTS = T_S(:);
+    tempTS(mask) = nan;
+    
+    sigmaW = nanmean(reshape(tempTS.^0.5,Nz, Nt), 2);
+    sigmaW(isnan(sigmaW)) = 0;
+    et = speye(Nz);
+    eE = repmat(et, Nt, 1);
+    E =eE * spvardiag(sigmaW.^2) * eE';
+    testS = weightedAK * E * weightedAK';
+    weightedSE_t_indep = sqrt(diag(testS));
+    
     weightedARho = -weightedAK * ARho;
     %% Plot Az and Az*R
     zALeg = {};
