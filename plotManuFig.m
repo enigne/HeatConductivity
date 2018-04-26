@@ -1,7 +1,7 @@
 % Script for generating plots in the manuscript
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-03-26
+% Date: 2018-04-26
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
@@ -40,7 +40,7 @@ catch
 end
 
 % load Opt K according to Nk
-dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
+dataFileName = ['sensitivity_K', num2str(NK), '_halfK.mat'];
 try
     load(dataFileName);
 catch
@@ -73,8 +73,9 @@ if plotKandRho
             % plot error bar
             line(K, zK,'linewidth',2);
             hold on
-            %         errorbar(K, zK, weightedSE{i,j},'horizontal','LineStyle','none','linewidth',2);
-            errorbar(K, zK, weightedSE{i,j},'LineStyle','none','linewidth',2);
+            %                     errorbar(K, zK, weightedSE{i,j},'horizontal','LineStyle','none','linewidth',2);
+            %             errorbar(K, zK, weightedSE{i,j},'LineStyle','none','linewidth',2);
+            errorbar(K, zK, weightedSE_t_indep{i,j},'LineStyle','none','linewidth',2);
             
             xlim([0,2.5]);
             ylim([1,12]);
@@ -105,7 +106,7 @@ if plotKandRho
         end
     end
     % Export to tex file
-    % matlab2tikz('optK_rho8.tex','height', '\fheight', 'width', '\fwidth' );
+    matlab2tikz('optK_rho8.tex','height', '\fheight', 'width', '\fwidth' );
 end
 %% Plot T Data and rho data
 if plotT
@@ -181,13 +182,27 @@ if plotRho
     figRho = figure('pos',[0 0 600 300]);
     for i = 1: length(yearIndex)
         subplot(1, length(yearIndex), i)
-        plot(rhoData{i}.rho,rhoData{i}.z, 'r', 'LineWidth' ,1.5)
+        % optimal rho
+        zRho = rho_opt{i,1}(:,1) + z_offset(i);
+        rho = rho_opt{i,1}(:,2);
+        % measurements
+        zmin = min(zRho);
+        zmax = max(zRho);
+        
+        z_mea = rhoData{i}.z + z_offset(i);
+        rho_mea = rhoData{i}.rho;
+        optRange = ((z_mea <= zmax) & (z_mea >= zmin));
+        % plot
+        plot(rho_mea(optRange), z_mea(optRange), 'LineWidth' ,1)
+        hold on
+        plot(rho, zRho, 'LineWidth' ,1.5)
         xlim([350,750]);
         ylim([1,12]);
-        view([0, -90]);
+        %         view([0, -90]);
         xlabel('$\rho$','Interpreter','latex');
         title(['201',num2str(i+1)])
     end
+    
     matlab2tikz('measuredRho.tex','height', '\fheight', 'width', '\fwidth' );
 end
 
@@ -196,7 +211,7 @@ if plotAk && plotT % need to run plotT to remove the gap
     figAk = figure('pos',[0 0 736 253]);
     for k = 1: NK
         %         subplot(ceil(NK/2), 2, k)
-        %     figAk = figure('pos',[0 0 736 253]);
+%             figAk = figure('pos',[0 0 736 253]);
         
         n = 1;
         for i = 1: length(yearIndex)
@@ -206,7 +221,7 @@ if plotAk && plotT % need to run plotT to remove the gap
                     z = z_cell{i,j}+  z_offset(i);
                     Ak = reshape(weightedAK{i,j}(k,:), length(z), length(t));
                     [tmesh, zmesh] = meshgrid(t,z);
-                    %                     surf(tmesh, zmesh, Ak)
+                    surf(tmesh, zmesh, Ak)
                     hold on
                     n = n + 1;
                 end
@@ -244,22 +259,23 @@ if plotAk && plotT % need to run plotT to remove the gap
         hAxes = gca;
         hAxes.XRuler.Axle.LineStyle = 'none';
         axis off
-        %                 print(figAk, ['Figures/sensitivityT/Sensitivity_AK_Nk', num2str(NK),'K',num2str(k) ], '-dpng', '-r600');
+        hold off
+        pause(0.5)
+        print(figAk, ['Figures/sensitivityT/Sensitivity_AK_Nk', num2str(NK),'K',num2str(k) ], '-dpng', '-r600');
         
     end
-    colorbar('southoutside')
-    print(figAk, ['Figures/Sensitivity_AK_Nk', num2str(NK),'_leg' ], '-dpng', '-r600');
+    %     colorbar('southoutside')
+    %     print(figAk, ['Figures/Sensitivity_AK_Nk', num2str(NK),'_leg' ], '-dpng', '-r600');
     % 	matlab2tikz('Sensitivity_AK_Nk.tex','height', '\fheight', 'width', '\fwidth' );
 end
 
 %% Plot Az and Az*R
 if plotAz
-    figAz = figure('pos',[0 0 600 300]);
+    figAz = figure('pos',[0 0 120 300]);
     n = 1;
     for i = 1: length(yearIndex)
         for j = 1: length(timePeriods{yearIndex(i)})
-            %             figAz = figure('pos',[0 0 120 300]);
-            %             subplot(1, 5, n);
+            figAz = figure('pos',[0 0 120 300]);
             tempAz = weightedAz{i,j};
             tempD = weightedD{i,j};
             [nK, nz] = size(tempAz);
@@ -273,18 +289,18 @@ if plotAz
             z_data = 1:0.1:8;
             
             zK = zK(1:nK);
-            z_data = z_data(1:nz)+ 1* z_offset(i);
+            z_data = z_data(1:nz)+ 0* z_offset(i);
             
             % plot
             [X, Y] = meshgrid(zK, z_data);
-            %             surf(X, Y, tempD')
+            surf(X, Y, tempD')
             view([0,-90])
             shading interp;
             %             colorbar
             colormap(jet)
             grid off
             xlim([1,8])
-            ylim([1,11.5])
+            ylim([1,8])
             xlabel('$z_K$', 'Interpreter','latex')
             ylabel('deepth')
             caxis([-5, 5])
@@ -293,14 +309,14 @@ if plotAz
             hAxes = gca;
             hAxes.XRuler.Axle.LineStyle = 'none';
             axis off
-            %             print(figAz, ['Figures/sensitivityZ/Sensitivity_z', num2str(NK),'_',num2str(n)], '-dpng', '-r600');
+            print(figAz, ['Figures/sensitivityZ/Sensitivity_z', num2str(NK),'_',num2str(n)], '-dpng', '-r600');
             
             n = n +1;
         end
     end
-    colorbar('southoutside')
+    %     colorbar('southoutside')
     %         matlab2tikz('sensitivityZ.tex','height', '\fheight', 'width', '\fwidth' );
-    print(figAz, ['Figures/sensitivityZ/Sensitivity_z_leg'], '-dpng', '-r600');
+    %     print(figAz, ['Figures/sensitivityZ/Sensitivity_z_leg'], '-dpng', '-r600');
     
 end
 
@@ -309,15 +325,15 @@ if plotTRho
     %     for i = 1: length(yearIndex)
     %         for j = 1: length(timePeriods{yearIndex(i)})
     i = 1; j = 1;
-    figRho = figure('pos',[0 0 900 300]);
+    figRho = figure('pos',[0 0 600 600]);
     tempARho = weightedARho{i,j}*1e4;
     zK = 1:size(tempARho, 1);
     zRho = 1:size(tempARho, 2);
     [X,Y] = meshgrid(zRho, zK);
-    %     surf(X, Y, tempARho)
+    surf(X, Y, tempARho)
     view([0,-90])
     shading interp;
-    colorbar('southoutside')
+%     colorbar('southoutside')
     xlabel('$z_K$', 'Interpreter','latex')
     ylabel('deepth')
     colormap(jet)
@@ -328,8 +344,8 @@ if plotTRho
     axis off
     %         end
     %     end
-    %     print(figRho, ['Figures/Sensitivity_Rho'], '-dpng', '-r600');
-    print(figRho, ['Figures/Sensitivity_Rho_leg'], '-dpng', '-r600');
+    print(figRho, ['Figures/Sensitivity_Rho'], '-dpng', '-r600');
+%     print(figRho, ['Figures/Sensitivity_Rho_leg'], '-dpng', '-r600');
     
 end
 %%
@@ -344,7 +360,7 @@ if plotFitRhoK
         for j = 1: length(timePeriods{yearIndex(i)})
             % fetch data at specific year
             K = K_opt{yearIndex(i), j}(1:end-1,:);
-            rho = rho_opt{yearIndex(i), j}(1:end-1,:);
+            rho = rho_opt{yearIndex(i), j}(1:end-1,:) ./1e3;
             err = weightedSE{i,j}(1:end-1,:);
             
             nanFlagK = isnan(K(:,2));
@@ -356,7 +372,7 @@ if plotFitRhoK
             rho_vec = [rho_vec;rho(:,2)];
             
             % plot K
-            plot(K(:,2), rho(:,2), plotMarkers{n}(2), 'linewidth', 2)
+            plot(rho(:,2), K(:,2),  plotMarkers{n}(2), 'linewidth', 2)
             hold on
             %             errorbar(K(:,2), rho(:,2), err,'horizontal','LineStyle','none')
             if j == 2
@@ -367,17 +383,17 @@ if plotFitRhoK
             n = n +1;
         end
     end
-    xlim([0, 2])
-    ylim([400, 650])
+    ylim([0, 2])
+    xlim([400, 650]./1e3)
     
-    p = polyfit(K_vec, rho_vec, 2);
-    x = sort(K_vec);
+    p = polyfit( rho_vec,K_vec, 2);
+    x = [min(rho_vec):0.01:max(rho_vec)];
     y = polyval(p, x);
     plot(x, y,'--')
     
-    legendKRhoList{n} = ['$\rho$=', num2str(p(1),'%.2f'),'$K^2$+',num2str(p(2),'%.2f'),'K+', num2str(p(3),'%.2f')];
-    xlabel('K')
-    ylabel('$\rho$','Interpreter','latex')
+    legendKRhoList{n} = ['$k$=', num2str(p(1),'%.2f'),'$\rho^2$+',num2str(p(2),'%.2f'),'$\rho$', num2str(p(3),'%.2f')];
+    ylabel('k')
+    xlabel('$\rho$','Interpreter','latex')
     legend(legendKRhoList, 'Location', 'best','Interpreter','latex')
-%     matlab2tikz('K_rho.tex','height', '\fheight', 'width', '\fwidth' );
+        matlab2tikz('K_rho.tex','height', '\fheight', 'width', '\fwidth' );
 end
