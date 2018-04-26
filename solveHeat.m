@@ -38,17 +38,21 @@ function [T]=solveHeat(t, z, x, heatParam)
         rho.z = heatParam.zRho;
     end
     
-    % Get Kp on each z
-    Kp = heatConductivity(heatParam.zK, K, z);
-    
-    % Get rho on each z
-    rhop = density(rho, z);
-    
     %% Initialization
     T_old = T0;
     nt = length(t);
     dx = abs(z(2)-z(1));
     Nx = length(z);
+    
+    % Get Kp on each z
+    zHalf = z - 0.5*dx;
+    zHalf(1) = z(1);
+    zHalf(end) = z(end);
+    Kp = heatConductivity(heatParam.zK, K, zHalf);
+    
+    % Get rho on each z
+    rhop = density(rho, z);
+
     T = zeros(Nx,nt);
     T(:,1) = T_old;
     

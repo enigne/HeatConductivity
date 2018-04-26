@@ -11,14 +11,15 @@ close all
 %% Setup
 yearIndex = [1:4];
 dataIndex = 0;
+saveData = 0;
 
-% Optimize K  
+% Optimize K
 NK = 8;
 zK = linspace(1, 8, NK);
 
 % Optimize Rho at the same time
 includeRho = 1;
-gamma = 1e-5;
+gamma = 10;
 NRho = NK;
 zRho = zK;
 
@@ -58,7 +59,7 @@ for i = 1: length(yearIndex)
     n = 1;
     subplot(2, 2, i)
     for j = 1: length(timePeriods{yearIndex(i)})
-        for l = 1:length(dataIndex)         
+        for l = 1:length(dataIndex)
             plot(K_opt{i,j, l}(:, 1) , K_opt{i,j, l}(:,2), 'linewidth', 1.5);
             hold on;
             t_conv = scaleTimeUnit(t_data_opt{i,j,l},'','');
@@ -75,10 +76,12 @@ for i = 1: length(yearIndex)
 end
 
 %% Save data
-if includeRho
-    dataFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_gamma', num2str(gamma), '_maskedBC_longP.mat'];
-    save(dataFileName, 'K_opt', 'rho_opt', 't_data_opt', 'timePeriods', 'yearIndex');
-else
-    dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-    save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+if saveData
+    if includeRho
+        dataFileName = ['invK', num2str(NK), 'rho', num2str(NRho), '_gamma', num2str(gamma), '_maskedBC_longP.mat'];
+        save(dataFileName, 'K_opt', 'rho_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+    else
+        dataFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
+        save(dataFileName, 'K_opt', 't_data_opt', 'timePeriods', 'yearIndex');
+    end
 end

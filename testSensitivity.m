@@ -13,12 +13,13 @@ clear
 NK = 8;
 NRho = NK;
 gamma = 10;
-saveData = 0;
+saveData = 1;
 
 % load Opt K according to Nk
 % optKFileName = ['invK', num2str(Nk), '_maskedBC.mat'];
 % optKFileName = ['invK', num2str(NK), '_maskedBC_longP.mat'];
-optKFileName = ['invK', num2str(NK), 'rho', num2str(NRho),'_gamma', num2str(gamma), '_maskedBC_longP.mat'];
+% optKFileName = ['invK', num2str(NK), 'rho', num2str(NRho),'_gamma', num2str(gamma), '_maskedBC_longP.mat'];
+optKFileName = ['invK', num2str(NK), 'rho', num2str(NRho),'_gamma', num2str(gamma), '_halfK.mat'];
 try
     load(optKFileName);
 catch
@@ -82,7 +83,7 @@ end
 
 %% Save data
 if saveData
-    dataFileName = ['sensitivity_K', num2str(NK), '_maskedBC_longP.mat'];
+    dataFileName = ['sensitivity_K', num2str(NK), '_halfK.mat'];
     save(dataFileName, 'weightedAK', 'weightedAz', 'weightedB', 'weightedD', 'weightedSE', ...
         'weightedSE_t_indep', 'weightedARho', 'K_opt','t_data_opt', 't_cell', 'z_cell', ...
         'timePeriods', 'yearIndex', 'rho_opt');
