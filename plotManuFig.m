@@ -13,7 +13,8 @@ plotRho = 0;
 plotAk = 0;
 plotAz = 0;
 plotTRho = 0;
-plotFitRhoK = 1;
+plotFitRhoK = 0;
+printEAz = 1;
 %% Load data
 % Predefined parameters
 NK = 8;
@@ -211,7 +212,7 @@ if plotAk && plotT % need to run plotT to remove the gap
     figAk = figure('pos',[0 0 736 253]);
     for k = 1: NK
         %         subplot(ceil(NK/2), 2, k)
-%             figAk = figure('pos',[0 0 736 253]);
+        %             figAk = figure('pos',[0 0 736 253]);
         
         n = 1;
         for i = 1: length(yearIndex)
@@ -333,7 +334,7 @@ if plotTRho
     surf(X, Y, tempARho)
     view([0,-90])
     shading interp;
-%     colorbar('southoutside')
+    %     colorbar('southoutside')
     xlabel('$z_K$', 'Interpreter','latex')
     ylabel('deepth')
     colormap(jet)
@@ -345,7 +346,7 @@ if plotTRho
     %         end
     %     end
     print(figRho, ['Figures/Sensitivity_Rho'], '-dpng', '-r600');
-%     print(figRho, ['Figures/Sensitivity_Rho_leg'], '-dpng', '-r600');
+    %     print(figRho, ['Figures/Sensitivity_Rho_leg'], '-dpng', '-r600');
     
 end
 %%
@@ -395,5 +396,23 @@ if plotFitRhoK
     ylabel('k')
     xlabel('$\rho$','Interpreter','latex')
     legend(legendKRhoList, 'Location', 'best','Interpreter','latex')
-        matlab2tikz('K_rho.tex','height', '\fheight', 'width', '\fwidth' );
+    matlab2tikz('K_rho.tex','height', '\fheight', 'width', '\fwidth' );
+end
+
+%% Print out the expected value and variance from Az
+if printEAz
+    epsilon = 1/800;
+    for i = 1: length(yearIndex)
+        for j = 1: length(timePeriods{yearIndex(i)})
+            Az = weightedD{i,j};
+            eMn = ones(size(Az,2),1);
+            Edk = -epsilon * Az*eMn;
+            Vdk = sqrt(diag(Az*Az'));
+            disp(num2str(Edk', '%3.3f & '));
+            disp(num2str(Vdk', '%3.3f & '));
+            disp(' ');
+        end
+    end
+    
+    
 end
