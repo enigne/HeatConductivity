@@ -1,8 +1,17 @@
 % D0 Operator of first derivative for N-vectors with space size dx 
 % Central differences qx = (q(i+1)-q(i-1))/2dx
-% periodFlag = 0 then B.C. is Direchlet(Default), so D(end,end) === 0
-% periodFlag = 1 then B.C. is periodical, so D(end,1) === 1
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   'N'             - the size of the operator;
+%   'dx'            - the space size;
+%   'periodFlag'    - periodFlag = 0 then B.C. is Direchlet(Default), so D(end,end) === 0; 
+%                     periodFlag = 1 then B.C. is periodical, so D(end,1) === 1
+% The return values:
+%   'D'             - The D0 Operator.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-01-26
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function D = Dcd(N, dx, periodFlag)
     % Set default value for periodFlag
     switch nargin
@@ -15,9 +24,6 @@ function D = Dcd(N, dx, periodFlag)
     D = circshift(I,[0,1])-circshift(I,[1,0]);
     D(1,end) = 0;
     D(end,1) = 0;
-    
-%     v = 0.5*ones(N-1,1);
-%     D = sparse(diag(v,1))+sparse(diag(-v,-1));
 
     % Boundary Condition
     if periodFlag == 0
@@ -33,4 +39,3 @@ function D = Dcd(N, dx, periodFlag)
     end
     D = sparse(D)/dx;
 end
-

@@ -17,7 +17,6 @@
 % Author: Cheng Gong
 % Date: 2018-01-26
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 function [A] = computeRhoSensitivity(z_data, t_data, T_data, dZfine, zK, K0, dRho, rho, C, mask, interpOption)
     Nz = length(z_data);
     Nzfine = dZfine * (Nz - 1) + 1;

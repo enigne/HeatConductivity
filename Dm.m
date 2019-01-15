@@ -1,8 +1,17 @@
 % D- Operator of first derivative for N-vectors with space size dx 
 % one side finite differences qx = (q(i)-q(i-1))/dx
-% periodFlag = 0 then B.C. is Direchlet(Default), so D(end,end) === 0
-% periodFlag = 1 then B.C. is periodical, so D(end,1) === 1
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input variables:
+%   'N'             - the size of the operator;
+%   'dx'            - the space size;
+%   'periodFlag'    - periodFlag = 0 then B.C. is Direchlet(Default), so D(end,end) === 0; 
+%                     periodFlag = 1 then B.C. is periodical, so D(end,1) === 1
+% The return values:
+%   'D'             - The D- Operator.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Cheng Gong
+% Date: 2018-01-26
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function D = Dm(N, dx, periodFlag)
     % Set default value for periodFlag
     switch nargin
