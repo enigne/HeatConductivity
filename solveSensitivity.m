@@ -22,11 +22,14 @@
 %   'mask'          - mask matrix used in sensitivity analysis;
 %   't_data'        - time points used in the computation, in the unit of seconds;
 %   'z_data'        - spatial grids used in the computation.
+%   'A12'           - A^T*W*ARho
+%   'A22'           - ARho^T*W*ARho
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Cheng Gong
-% Date: 2018-04-26
+% Date: 2019-03-28
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [weightedAK, weightedB, weightedSE, weightedSE_t_indep, weightedAz, weightedD, weightedARho, dTdz, T_data, mask, t_data, z_data] = ...
+function [weightedAK, weightedB, weightedSE, weightedSE_t_indep, weightedAz, ...
+    weightedD, weightedARho, dTdz, T_data, mask, t_data, z_data, A12, A22] = ...
     solveSensitivity(yearIndex, K_opt, zK, timePeriod, rho_opt, zRho)
     if nargin < 5
         loadRhoFlag = 1;
@@ -154,4 +157,7 @@ function [weightedAK, weightedB, weightedSE, weightedSE_t_indep, weightedAz, wei
 
     weightedAz = weightedAK * matDTDz;
     weightedD = weightedAz * R;
-    
+
+    %% prepare for the eigenvalue check
+    A12 = weightedA * ARho;
+    A22 = ARho' * ARho;
