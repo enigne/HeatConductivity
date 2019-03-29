@@ -17,7 +17,7 @@ saveK_Rho = 1;
 % Predefined parameters
 NK = 8;
 NRho = NK;
-gamma = [1e-5, 1e-3, 1e1, 1e3 1e7];
+gamma = [1e-5, 1e1, 1e3 1e7];
 plotMarkers = {'-d', '-o', '-^', '-*', '-+', '-',':'};
 
 % load measurements
@@ -48,6 +48,13 @@ Q11 = weightedB{year, 1};
 Q12 = A12{year, 1};
 Q21 = Q12';
 Q22 = A22{year, 1};
+
+%%
+z = [1:NK]';
+Klines = zeros(NK,length(gamma));
+rholines = zeros(NK,length(gamma));
+eigVals= zeros(NK+NRho,length(gamma));
+
 %% Go through all the test cases
 fig = figure('pos',[0 0 800 600]);
 for i = 1:length(gamma)
@@ -74,12 +81,12 @@ for i = 1:length(gamma)
     subplot(2, 2, 1)
     plot(K(:,1), K(:,2), plotMarkers{i}, 'linewidth', 1.5)
     hold on
-    
+    Klines(:,i) = K(:,2);
     % plot Rho
     subplot(2, 2, 3)
     plot(rho(:,1), rho(:,2), plotMarkers{i}, 'linewidth', 1.5)
     hold on
-    
+    rholines(:,i) = rho(:,2);
     % plot the eigenvalues of [A', B']*W*[A; B]
 
     Q = [Q11, Q12;
@@ -91,6 +98,8 @@ for i = 1:length(gamma)
     subplot(2, 2, 2)
 	plot((V(1:end,end)), plotMarkers{i}, 'linewidth', 1.5)
     hold on
+    eigVals(:, i) = V(1:end,end);
+    
     subplot(2, 2, 4)
 	semilogy(abs(V(1:end,end)), plotMarkers{i}, 'linewidth', 1.5)
     hold on
@@ -111,19 +120,21 @@ legend(legendList, 'Location', 'best','Interpreter','latex')
 subplot(2, 2, 2)
 xlim([1,16])
 xlabel('z')
-title('eigenvectors for $K$  corresponds to the smallest eigenvalue','Interpreter','latex')   
+title('eigenvectors corresponds to the smallest eigenvalue','Interpreter','latex')   
 legend(legendList, 'Location', 'best','Interpreter','latex')
 
 subplot(2, 2, 4)
 xlim([1,16])
 xlabel('z')
-title('eigenvectors for $\rho$ corresponds to the smallest eigenvalue','Interpreter','latex')   
+title('eigenvectors corresponds to the smallest eigenvalue','Interpreter','latex')   
 legend(legendList, 'Location', 'best','Interpreter','latex')
 
 
 % plot measured rho in subplot(2)
 subplot(2, 2, 3)
 plot(rhoData{year}.z, rhoData{year}.rho, 'linewidth', 1)
+rhoDataLine = rhoData{year}.rho;
+rhoDataZ = rhoData{year}.z;
 title(['Optimal $\rho$ in 201', num2str(year+1)],'Interpreter','latex');
 xlim([1, 8])
 ylim([300, 900])
